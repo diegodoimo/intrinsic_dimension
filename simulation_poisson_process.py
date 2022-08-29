@@ -3,16 +3,13 @@ import argparse
 import os
 import pathlib
 import time
-#from adpy import data as datacl
-from dadapy import data
-
 import utils.functions as ut
 from utils.pairwise_distance import compute_mus
 #*******************************************************************************
 def poisson_dataset(ndata, d):
 
     #V = A*(r^d_i-r^d_{i-1}) ; l'area della superficie sferica A,  è una costante consideriamola 1 nel calcolo di raggi
-    shell = np.random.exponential(scale = 1, size = ndata-1)
+    shell = np.random.exponential(scale = 1, size = ndata)
     volumes = [0]
     for i in range(len(shell)):
         volumes.append(volumes[i]+shell[i])
@@ -20,12 +17,12 @@ def poisson_dataset(ndata, d):
     radii=volumes**(1/d)
 
     #sample from d-sphere
-    u = np.random.normal(loc = 0,scale = 1, size = (ndata, d))  # an array of d normally distributed random variables
+    u = np.random.normal(loc = 0,scale = 1, size = (ndata+1, d))  # an array of d normally distributed random variables
     theta = u/np.linalg.norm(u, axis = 1, keepdims = True)
     #poisson process dataset
     data = theta*radii[:, None]
 
-    return data
+    return data[1:]
 
 #*******************************************************************************
 parser = argparse.ArgumentParser()
