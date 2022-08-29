@@ -1,7 +1,7 @@
 #!/bin/bash
 n_max=9
 nsamples=1000
-for ndata in  128 256 512 1024 2048 4096 8192
+for ndata in 11 
 do
 for id in 2 3
 do
