@@ -1,0 +1,10 @@
+#!/bin/bash
+n_max=9
+nsamples=1000
+for ndata in  128 256 512 1024 2048 4096 8192
+do
+for id in 2 3
+do
+sbatch --export=ALL,ndata=$ndata,id=$id,nsamples=$nsamples,n_max=$n_max sbatch
+done
+done

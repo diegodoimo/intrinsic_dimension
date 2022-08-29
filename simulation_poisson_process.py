@@ -69,7 +69,7 @@ ids_std = np.empty((args.nsamples, args.n))
 
 print(f'id = {args.id}\nn_samples = {args.nsamples}\nntot = {ntot}\nndata = {args.ndata}')
 for s in range(args.nsamples):
-    if s%10==0:
+    if s%20==0:
         print(f'ndata {args.ndata}: {s} samples computed')
 
     dataset  = poisson_dataset(ntot, args.id)
