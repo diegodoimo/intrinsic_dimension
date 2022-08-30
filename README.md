@@ -11,11 +11,27 @@ Platforms:
 You can get miniconda from https://docs.conda.io/en/latest/miniconda.html, or install the dependencies shown below manually.
 
 ```
-conda create --name gride
-
-pip install dadapy
-
-conda activate gride
+conda create --name gride python numpy scipy scikit-learn
 ```
+
+```
+conda activate gride
+pip install dadapy
+```
+
+To reproduce the ESS estimator tests install R in the conda environment with: 
+```
+conda activate gride
+conda install r-essentials r-base
+```
+Then open R from terminal typing:
+```
+R
+```
+and install the package intrinsicDimension:
+```
+install.packages("intrinsicDimension")
+```
+
 
 ## Usage
