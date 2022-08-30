@@ -23,6 +23,7 @@ To reproduce the ESS estimator tests install R in the conda environment with:
 ```
 conda activate gride
 conda install r-essentials r-base
+conda install pandas
 pip install rpy2
 ```
 Then open R from terminal typing:
