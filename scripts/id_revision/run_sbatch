@@ -1,0 +1,13 @@
+#!/bin/bash
+algo="geomle"
+nrep=1
+nboots=20
+k1=10
+k2=40
+for algo in "geomle"
+do
+for data_name in 'cifar'
+do
+sbatch --export=ALL,data_name=$data_name,k1=$k1,k2=$k2,algo=$algo,nrep=$nrep,nboots=$nboots sbatch_id
+done
+done

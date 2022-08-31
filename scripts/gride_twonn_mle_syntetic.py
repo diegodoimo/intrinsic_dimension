@@ -3,8 +3,6 @@ from utils.syntetic_datasets import *
 from dadapy import IdEstimation
 from sklearn.neighbors import NearestNeighbors
 
-
-
 N = 16000
 eps = 0.01
 names = {

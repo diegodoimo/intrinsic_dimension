@@ -1,0 +1,26 @@
+#!/bin/bash
+#SBATCH --account=Sis22_ermut
+##SBATCH --account=uTS21_zullich
+#SBATCH --partition=m100_usr_prod   	#production queue
+#SBATCH --qos=m100_qos_dbg          	#debugging queue
+##SBATCH --qos=normal
+#SBATCH --nodes=1
+#SBATCH --time=0:40:00             	#format: HH:MM:SS
+#SBATCH --ntasks-per-node=1        	#4 tasks uso una sola cpu (SMT)
+#SBATCH --cpus-per-task=32      	#128cpu/nodo 64x2 socket
+#SBATCH --mem=16000                	#memory per node out of 256000MB
+#SBATCH --job-name=test_imagenet
+##SBATCH --output=slurm_outs/out
+##SBATCH --output=slurm_outs/err
+##SBATCH --array 0
+
+module load profile/deeplrn
+module load autoload cineca-ai/2.1.0
+#module load anaconda
+#source $CONDA_PREFIX/etc/profile.d/conda.sh
+#conda activate /m100_work/Sis22_ermut/ddoimo/id_revision/conda_skdim
+#source pip_skdim/bin/activate
+
+export OMP_NUM_THREADS=8
+
+srun  -N1 python3 main.py --data_folder "./datasets" --data_name $data_name --algo $algo --k1 $k1 --k2 $k2 --nrep $nrep --nbootstrap $nboots --benchmark_p
