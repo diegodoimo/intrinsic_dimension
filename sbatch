@@ -17,4 +17,4 @@ module load autoload cineca-ai/2.1.0
 export OMP_NUM_THREADS=16
 
 srun  -N1 --gres gpu:1 python3 simulation_poisson_process.py --nsamples $nsamples \
-      --n $n_max --ndata $ndata --id $id --results_path './results' --filename 'no_center' 
+      --n $n_max --ndata $ndata --id $id --results_path './results' --filename 'poisson2' 
