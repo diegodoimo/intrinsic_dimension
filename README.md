@@ -11,20 +11,19 @@ Platforms:
 You can get miniconda from https://docs.conda.io/en/latest/miniconda.html, or install the dependencies shown below manually.
 
 ```
-conda create --name gride python numpy scipy scikit-learn
+conda create --name gride python numpy scipy scikit-learn seaborn 
 ```
 
 ```
 conda activate gride
-pip install dadapy
+pip install dadapy                                      #official version of gride (and much more)
+conda install pytorch torchvision cpuonly -c pytorch    #(cifar mnist datasets)
 ```
 
 To reproduce the ESS estimator tests install R in the conda environment with: 
 ```
 conda activate gride
 conda install r-essentials r-base
-conda install pandas
-pip install rpy2
 ```
 Then open R from terminal typing:
 ```
