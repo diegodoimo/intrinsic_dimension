@@ -23,19 +23,11 @@ import numpy as np
 from scipy.optimize import curve_fit
 from sklearn.metrics import pairwise_distances_chunked
 from sklearn.neighbors import NearestNeighbors
+import sys
 
 cores = multiprocessing.cpu_count()
 rng = np.random.default_rng()
 
-
-# def compute_cross_nn_distances(X_new, X, maxk, metric="euclidean", period=None):
-#
-#     # nbrs = NearestNeighbors(n_neighbors=maxk, metric=metric, p=p).fit(X)
-#     nbrs = NearestNeighbors(n_neighbors=maxk, metric=metric).fit(X)
-#
-#     distances, dist_indices = nbrs.kneighbors(X_new)
-#
-#     return distances, dist_indices
 def compute_nn_distances(X, maxk, metric="euclidean", period=None):
 
     nbrs = NearestNeighbors(n_neighbors=maxk+1, metric=metric).fit(X)
@@ -132,6 +124,51 @@ def return_id_scaling_2NN(
 
     return ids_scaling, ids_scaling_err, rs_scaling
 
+
+def return_id_scaling_mle(
+    X,
+    N_min=10,
+    k1 = 10,
+    unbiased = False
+):
+    N = X.shape[0]
+    max_ndec = int(math.log(N, 2)) - 1
+    Nsubsets = np.round(N / np.array([2**i for i in range(max_ndec)]))
+    Nsubsets = Nsubsets.astype(int)
+
+    if N_min is not None:
+        Nsubsets = Nsubsets[Nsubsets > N_min]
+
+    ids_scaling = np.zeros(Nsubsets.shape[0])
+    ids_scaling_err = np.zeros(Nsubsets.shape[0])
+    rs_scaling = np.zeros((Nsubsets.shape[0]))
+
+    for i, N_subset in enumerate(Nsubsets):
+
+        decimation = N_subset / N
+        nrep = int(np.rint(1.0 / decimation))
+        ids = np.zeros(nrep)
+        rs = np.zeros(nrep)
+
+        #print(nrep)
+        for j in range(nrep):
+            N_subset = int(np.rint(N * decimation))
+            idx = np.random.choice(N, size=N_subset, replace=False)
+            X_decimated = X[idx]
+            distances, dist_indices, mus, rs_ = _return_mus_scaling(X_decimated,
+                    range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
+                )
+            rs[j] = np.mean(rs_, axis = 0)
+            ids[j] = 1/np.mean(mus, axis = 0)
+
+        ids_scaling[i] = np.mean(ids)
+        ids_scaling_err[i] = np.std(ids) / len(ids) ** 0.5
+        rs_scaling[i] = np.mean(rs)
+
+    return ids_scaling, ids_scaling_err, rs_scaling
+
+
+
 # ----------------------------------------------------------------------------------------------
 def return_id_scaling_gride(X, range_max=64, d0=0.001, d1=1000, eps=1e-7, mg_estimator = False, unbiased = False):
 
@@ -182,7 +219,7 @@ def _remove_zero_dists(distances):
     return distances
 
     # ----------------------------------------------------------------------------------------------
-def _mus_scaling_reduce_func(dist, start, range_scaling, maxk, mg_estimator = False, unbiased = False):
+def _mus_scaling_reduce_func(dist, start, range_scaling, maxk, mg_estimator = False, unbiased = False, k1 = None):
 
     max_step = int(math.log(range_scaling, 2))
     steps = np.array([2**i for i in range(max_step)])
@@ -197,19 +234,41 @@ def _mus_scaling_reduce_func(dist, start, range_scaling, maxk, mg_estimator = Fa
     dist = np.sqrt(dist[sample_range, neigh_ind])
     dist = _remove_zero_dists(dist)
 
+    #print(dist.shape)
+
     if mg_estimator:
-        mus = np.zeros((dist.shape[0], len(steps)-1))
-        rs = np.zeros((dist.shape[0], len(steps)-1))
-        for i in range(len(steps)-1):
-            k = steps[i+1]
+        if k1 is not None:
+            assert isinstance(k1, int)
+            #just estimate with k1 = 10 for simplicity
+            #steps = np.array([k1+1])
+            mus = np.zeros(dist.shape[0])
+            rs = np.zeros(dist.shape[0])
+
+            k = k1+1
+
             tmp = np.log(dist[:, k:k+1]/dist[:, 1:k])
             if unbiased:
-                print(k)
-                mus[:, i] = tmp.sum(axis=1)/(k- 2)
+                mus = tmp.sum(axis=1)/(k- 2)
             else:
-                mus[:, i] = tmp.sum(axis=1)/(k- 1)
-            rs[:, i] = np.mean(dist[:, :k+1], axis = 1)
+                mus = tmp.sum(axis=1)/(k- 1)
+
+            mus = np.array(mus).reshape(-1, 1)
+            rs = np.array(np.mean(dist[:, :k+1], axis = 1)).reshape(-1, 1)
             #print(rs.shape, mus.shape)
+            #sys.stdout.flush()
+        else:
+            mus = np.zeros((dist.shape[0], len(steps)-1))
+            rs = np.zeros((dist.shape[0], len(steps)-1))
+            for i in range(len(steps)-1):
+                k = steps[i+1]
+                tmp = np.log(dist[:, k:k+1]/dist[:, 1:k])
+                if unbiased:
+
+                    mus[:, i] = tmp.sum(axis=1)/(k- 2)
+                else:
+                    mus[:, i] = tmp.sum(axis=1)/(k- 1)
+                rs[:, i] = np.mean(dist[:, :k+1], axis = 1)
+                #print(rs.shape, mus.shape)
     else:
         mus = dist[:, steps[1:]] / dist[:, steps[:-1]]
         rs = dist[:, np.array([steps[:-1], steps[1:]])]
@@ -219,7 +278,7 @@ def _mus_scaling_reduce_func(dist, start, range_scaling, maxk, mg_estimator = Fa
 
     return dist, neigh_ind, mus, rs
 
-def _return_mus_scaling(X, range_scaling, maxk=30, mg_estimator = False, unbiased = False):
+def _return_mus_scaling(X, range_scaling, maxk=30, mg_estimator = False, unbiased = False, k1 = None):
     """Return the "mus" needed to compute the id.
 
     Adapted from kneighbors function of sklearn
@@ -239,7 +298,7 @@ def _return_mus_scaling(X, range_scaling, maxk=30, mg_estimator = False, unbiase
         rs np.ndarray(float)): the FULL matrix of the distances of the neighbors involved in the mu estimates
     """
     reduce_func = partial(
-        _mus_scaling_reduce_func, range_scaling=range_scaling, maxk = maxk, mg_estimator = mg_estimator, unbiased = unbiased
+        _mus_scaling_reduce_func, range_scaling=range_scaling, maxk = maxk, mg_estimator = mg_estimator, unbiased = unbiased, k1= k1
     )
 
     kwds = {"squared": True}

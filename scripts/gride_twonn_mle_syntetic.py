@@ -1,7 +1,9 @@
-from utils.estimators import return_id_scaling_gride
+from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
 from utils.syntetic_datasets import *
 from dadapy import IdEstimation
 from sklearn.neighbors import NearestNeighbors
+
+
 
 N = 16000
 eps = 0.01
@@ -18,7 +20,26 @@ names = {
 }
 
 
+
+
 results = './results/syntetic_datasets'
+#mle scaling decimating the dataset
+for i, (key, value) in enumerate(names.items()):
+    func = value[0]
+    kwargs = value[1]
+    X = func(**kwargs)
+    print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
+    print('mle')
+    k1 = 10
+    mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+    print(mle_ids)
+    np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_nscaling_k{k1}.npy', np.array([mle_ids, mle_err, mle_rs]))
+
+
+2.5*1.5
+
+
+
 for i, (key, value) in enumerate(names.items()):
     func = value[0]
     kwargs = value[1]
