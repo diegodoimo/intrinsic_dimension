@@ -1,0 +1,2 @@
+#!/bin/bash
+python main.py --benchmark_sample --algo "geomle" --ver "fastGeoMLE" --data_name 'mnist' --k1 10 --k2 40

@@ -18,9 +18,9 @@ results = './results/datasets/syntetic'
 N = 32000
 eps=0
 names = {
-    'normal':           {'N':16000,'D': 3,'d': 2,'eps': 0.01},
-    'spiral1d':         {'N':16000,'D': 3,'d': 1,'eps': 0.01},
-    'moebius':          {'N':16000,'D': 6,'d': 2,'eps': 0.01},
+    'normal':         {'N':16000,'D': 3,'d': 2,'eps': 0.01},
+    'spiral1d':       {'N':16000,'D': 3,'d': 1,'eps': 0.01},
+    'moebius':        {'N':16000,'D': 6,'d': 2,'eps': 0.01},
     'uniform2_0':     {'N':N,'D': 2,'d': 2,'eps': eps},
     'uniform5_0':     {'N':N,'D': 5,'d': 5,'eps': eps},
     'uniform10_0':    {'N':N,'D': 10,'d': 10,'eps': eps},
@@ -90,6 +90,9 @@ gs1.tight_layout(fig, rect = [0., 0, 0.27, 1])
 gs0.tight_layout(fig, rect = [0.3, 0, 1, 1])
 fig.text(0.01, 0.9, 'a', fontsize = 15, fontweight = 'bold')
 fig.text(0.33, 0.9, 'b', fontsize = 15, fontweight = 'bold')
+
+
+
 plt.savefig('./plots/syntetic_datasets.pdf')
 
 

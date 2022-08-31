@@ -11,16 +11,16 @@ sns.set_style("whitegrid",rc={"grid.linewidth": 0.01})
 
 
 #*******************************************************************************
-id = 2
+id = 3
 nrep = 1000
 scirep= False
-filename = 'no_center'
+filename = 'poisson2'
 
 plots_folder = './plots'
 results_folder = f'./results/ids_poisson_dataset'
 #ndata = [128, 512, 2048, 8192]
-ndata = [128, 512, 2048]
-ndata = [11, 33, 101, 303]
+ndata = [32, 128]
+#ndata = [11, 33, 101, 303]
 fig = plt.figure(figsize = (9, 2.7))
 gs = GridSpec(1, 4)
 ks = [2**i for i in range(9)]
@@ -49,15 +49,7 @@ for i in range(len(ndata)):
 
 gs.tight_layout(fig, rect = [0, 0.02, 1, 1.])
 
-101/3
-
-
-128*4*4*4
-
-101*3*3*3
-
-
-plt.plot(ids[:, 5], linewidth = 0, marker = '.')
+#plt.plot(ids[:, 5], linewidth = 0, marker = '.')
 
 
 #fig.text(0.48, 0.02, 'n (as in $r_{2n}/r_n$)', fontsize = 14)
