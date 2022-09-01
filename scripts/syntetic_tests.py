@@ -2,10 +2,9 @@ from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
 from utils.syntetic_datasets import *
 from dadapy import IdEstimation
 from sklearn.neighbors import NearestNeighbors
-from utils.geomle import geomle
+from utils.geomle import geomle, geomle_opt
 import argparse
 import sys
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_name', default = 'mnist', type = str)
@@ -38,33 +37,37 @@ names = {
         'nonlinear':    [nonlinear,     {'N':N,'D': 36,'d': 6,'eps': eps}]
 }
 
-#results = './results/syntetic_datasets'
+#X = uniform(N = N,D =  20,d = 5, eps = eps)
+#ids, ids_ = geomle(X, k1 = 5, k2 = 15, nb_iter1 = 1, nb_iter2 = 10)#, ver = 'fastGeoMLE')
 #mle scaling decimating the dataset
-#for i, (key, value) in enumerate(names.items()):
-#    func = value[0]
-#    kwargs = value[1]
-#    X = func(**kwargs)
-#    print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
-#    print('mle')
-#    k1 = 10
-#    mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
-#    print(mle_ids)
-#    np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_nscaling_k{k1}.npy', np.array([mle_ids, mle_err, mle_rs]))
+# for i, (key, value) in enumerate(names.items()):
+#     func = value[0]
+#     kwargs = value[1]
+#     X = func(**kwargs)
+#     print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
+#     print('mle')
+#     k1 = 10
+#     mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+#     print(mle_ids)
+#     np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_nscaling_k{k1}.npy', np.array([mle_ids, mle_err, mle_rs]))
 
-for i, (key, value) in enumerate(names.items()):
-    func = value[0]
-    kwargs = value[1]
-    X = func(**kwargs)
-    nsample = X.shape[0]
-    for algo in ['mle', '2nn', 'gride', 'geomle']:
-        if args.algo is not None:
-            algo = args.algo
+
+for algo in ['mle', '2nn', 'gride', 'geomle']:
+    if args.algo is not None:
+        algo = args.algo
+    for i, (key, value) in enumerate(names.items()):
+        func = value[0]
+        kwargs = value[1]
+        X = func(**kwargs)
+        nsample = X.shape[0]
 
         print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
 
         if algo =='mle':
             print('mle')
-            mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
+            #mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
+            k1 = 10
+            mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
             np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([mle_ids, mle_err, mle_rs]))
 
         elif algo=='twonn':
@@ -80,23 +83,34 @@ for i, (key, value) in enumerate(names.items()):
             np.save(f'{results}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
 
         elif algo == 'geomle':
+            nsample= X.shape[0]
             print('geomle')
             #lets do explicit decimation here
-            for fraction in [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]:
+            geomle_ids, geomle_err, geomle_rs  = [], [], []
+            for i, fraction in enumerate([1, 2, 4, 8, 16,32, 64, 128, 256, 512]):
                 nsubsample = int(nsample//fraction)
                 print(fraction)
                 sys.stdout.flush()
-                if nsample > 2*args.k2:
-                    for rep in range(int(fraction)):
-                        print(rep)
-                        sys.stdout.flush()
-                        X_ = X[np.random.choice(nsample, size = nsubsample, replace = False)]
-                        id = geomle(X_, k1 = 5, k2 = 15, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap , ver='GeoMLE')
-                        with open(f'{args.results_folder}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_k{args.k1}_{args.k2}_nrep{nrep}_nboots{nbootstrap}.txt', 'a') as f:
-                            f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}\n')
+                if nsubsample > 2*args.k2:
+                    nrep = fraction
+                    X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
+                    ids, rs = geomle_opt(X_bootstrap, k1 = 5, k2 = 15, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
 
+                geomle_ids.append(np.mean(ids))
+                geomle_err.append( np.std(ids)/len(ids) )
+                geomle_rs.append( np.mean(rs) )
+
+                #print(geomle_ids, geomle_rs)
+
+            np.save(f'{args.results_folder}/geomle/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+
+                    # with open(f'{args.results_folder}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_k{args.k1}_{args.k2}_nrep{nrep}_nboots{nbootstrap}.txt', 'a') as f:
+                    #     f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}\n')
     if args.algo is not None:
         break
+
+
+
 
 
 #*******************************************************************************
