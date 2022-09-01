@@ -43,10 +43,10 @@ To reproduce decimation analysis on syntetic datasets (fig ...) with gride, twon
 ```
 cd scripts
 conda activate gride
-python  syntetic_test.py --eps 0.01 --algo 'gride'
-python  syntetic_test.py --eps 0.01 --algo 'twonn'
-python  syntetic_test.py --eps 0.01 --algo 'mle'
-python  syntetic_test.py --eps 0.01 --algo 'geomle' #(this may take between 10 and 20 minutes)
+python  syntetic_test.py --eps 0.01 --algo 'gride'      #less than 1min
+python  syntetic_test.py --eps 0.01 --algo 'twonn'      #less than 1min
+python  syntetic_test.py --eps 0.01 --algo 'mle'        #less than 1min
+python  syntetic_test.py --eps 0.01 --algo 'geomle'     #(this may take between 10 and 20 minutes)
 ```
 
 To reproduce decimation analysis on syntetic datasets (fig ...) with ess:
@@ -54,7 +54,7 @@ To reproduce decimation analysis on syntetic datasets (fig ...) with ess:
 cd scripts
 conda activate gride
 python generate_datasets --syntetic --csv --eps 0.01    #create a set of data with noise std 0.01 (50MB required)
-Rscript syntetic_ess.R #(this may take between 20 and 30 minutes)
+Rscript syntetic_ess.R                                  #(this may take between 20 and 30 minutes)
 ```
 
 **Tests on real datasets (MNIST, ISOMAP, ISOLET)**
@@ -62,8 +62,8 @@ To reproduce decimation analysis on MNIST, ISOMAP, ISOLET datasets (fig ...) wit
 ```
 cd scripts
 conda activate gride
-python  syntetic_test.py --eps 0.01 --algo 'gride'
-python  syntetic_test.py --eps 0.01 --algo 'twonn'
-python  syntetic_test.py --eps 0.01 --algo 'mle'
-python  syntetic_test.py --eps 0.01 --algo 'geomle' #(this may take between 10 and 20 minutes)
+python  real_test.py --eps 0.01 --algo 'gride'            #less than 1min
+python  real_test.py --eps 0.01 --algo 'twonn'            #less than 1min
+python  real_test.py --eps 0.01 --algo 'mle'              #less than 1min
+python  real_test.py --eps 0.01 --algo 'geomle'           #(this may take between 10 and 20 minutes)
 ```
