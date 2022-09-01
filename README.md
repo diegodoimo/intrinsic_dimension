@@ -38,6 +38,17 @@ To reproduce the DANCo estimator tests you must have MATLAB installed. We used M
 
 ## Usage
 
+**Dataset generation**
+```
+cd scripts
+conda activate gride
+python generate_datasets --syntetic --csv --eps 0.01    #create syntetic datasets in .csv format with noise std 0.01 (50MB required) 
+python generate_datasets --syntetic --npy --eps 0.01    #create syntetic datasets in .npy format with noise std 0.01 (17MB required)
+python generate_datasets --syntetic --mat --eps 0.01    #create syntetic datasets in .mat (matlab struct)  with noise std 0.01 (17MB required)
+
+python generate_datasets --real                         #download real datasets
+```
+
 **Tests on syntetic datasets**
 To reproduce decimation analysis on syntetic datasets (fig ...) with gride, twonn, mle (levina-bickel), geomle, with noise 0.01:
 ```
@@ -74,10 +85,10 @@ To reproduce time benchmark with gride, twonn, mle (levina-bickel), geomle:
 ```
 cd scripts
 conda activate gride
-python  benchmark_test.py --algo 'gride'            #less than 1min
-python  benchmark_test.py --algo 'twonn'            #less than 1min
-python  benchmark_test.py --algo 'mle'              #less than 1min
-python  real_test.py --algo 'geomle'           #(this may take between 10 and 20 minutes)
+python  benchmark_test.py --algo 'gride'            #less than ...
+python  benchmark_test.py --algo 'twonn'            #less than ...
+python  benchmark_test.py --algo 'mle'              #less than ...
+python  benchmark_test.py --algo 'geomle'           #(this may take ...)
 ```
 
 
