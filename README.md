@@ -48,3 +48,22 @@ python  syntetic_test.py --eps 0.01 --algo 'twonn'
 python  syntetic_test.py --eps 0.01 --algo 'mle'
 python  syntetic_test.py --eps 0.01 --algo 'geomle' #(this may take between 10 and 20 minutes)
 ```
+
+To reproduce decimation analysis on syntetic datasets (fig ...) with ess:
+```
+cd scripts
+conda activate gride
+python generate_datasets --syntetic --csv
+Rscript syntetic_ess.R #(this may take between 20 and 30 minutes)
+```
+
+**Tests on real datasets (MNIST, ISOMAP, ISOLET)**
+To reproduce decimation analysis on MNIST, ISOMAP, ISOLET datasets (fig ...) with gride, twonn, mle (levina-bickel), geomle:
+```
+cd scripts
+conda activate gride
+python  syntetic_test.py --eps 0.01 --algo 'gride'
+python  syntetic_test.py --eps 0.01 --algo 'twonn'
+python  syntetic_test.py --eps 0.01 --algo 'mle'
+python  syntetic_test.py --eps 0.01 --algo 'geomle' #(this may take between 10 and 20 minutes)
+```
