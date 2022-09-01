@@ -5,7 +5,7 @@ library(intrinsicDimension)
 
 data_files<-list.files("../datasets/syntetic/csv")
 results_path<-"./results/syntetic_datasets/"
-for(i in 8:length(data_files)) {
+for(i in 1:length(data_files)) {
     mat <-read.csv(paste0("../datasets/syntetic/csv/", data_files[i]), header = FALSE)
 
     print(data_files[i])
@@ -15,7 +15,7 @@ for(i in 8:length(data_files)) {
                   stringsAsFactors=FALSE)
     ndata<-nrow(mat)
     for (fraction in list(1, 2, 4,8, 16, 32, 64, 128, 256, 512)){
-      n <- ndata/ fraction
+      n <- ndata%/%fraction
       print(fraction)
       for (nrep in (1:fraction)){
         s <-sample(nrow(mat),size=n,replace=FALSE)
@@ -27,7 +27,7 @@ for(i in 8:length(data_files)) {
 
         }
       }
-    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), "_ids.txt")
+    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), ".txt")
     write.table(ids, filename, append = FALSE, sep = " ", dec = ".",
                 row.names = FALSE, col.names = FALSE)
   }

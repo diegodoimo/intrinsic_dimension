@@ -24,99 +24,75 @@ args = parser.parse_args([])
 rng = np.random.default_rng(2022)
 rng.random(args.seed)
 
-N = 16000
-eps = 0.01
-names = {
-        'uniform20':    [uniform,       {'N':N,'D': 20,'d': 5,'eps': eps}],
-        'normal':       [normal,        {'N':N,'D': 3,'d': 2,'eps': eps}],
-        'normal20':     [normal,        {'N':N,'D': 20,'d': 2,'eps': eps}],
-        'sphere':       [sphere,        {'N':N,'D': 15,'d': 10,'eps': eps}],
-        'spiral1d':     [spiral1d,      {'N':N,'D': 3,'d': 1,'eps': eps}],
-        'swissroll':    [swissroll,     {'N':N,'D': 3,'d': 2,'eps': eps}],
-        'moebius':      [moebius,       {'N':N,'D': 6,'d': 2,'eps': eps}],
-        'paraboloid':   [paraboloid,    {'N':N,'D': 30,'d': 9,'eps': eps}],
-        'nonlinear':    [nonlinear,     {'N':N,'D': 36,'d': 6,'eps': eps}]
-}
-
-#X = uniform(N = N,D =  20,d = 5, eps = eps)
-
-#ids, ids_ = geomle(X, k1 = 5, k2 = 15, nb_iter1 = 1, nb_iter2 = 10)#, ver = 'fastGeoMLE')
-
-results = './results/syntetic_datasets'
-#mle scaling decimating the dataset
-# for i, (key, value) in enumerate(names.items()):
-#     func = value[0]
-#     kwargs = value[1]
-#     X = func(**kwargs)
-#     print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
-#     print('mle')
-#     k1 = 10
-#     mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
-#     print(mle_ids)
-#     np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_nscaling_k{k1}.npy', np.array([mle_ids, mle_err, mle_rs]))
+args.uniform_gride = True
 
 
-args.algo = 'geomle'
+if not args.uniform_gride:
+    N = 16000
+    eps = 0.01
+    names = {
+            'uniform20':    [uniform,       {'N':N,'D': 20,'d': 5,'eps': eps}],
+            'normal':       [normal,        {'N':N,'D': 3,'d': 2,'eps': eps}],
+            'normal20':     [normal,        {'N':N,'D': 20,'d': 2,'eps': eps}],
+            'sphere':       [sphere,        {'N':N,'D': 15,'d': 10,'eps': eps}],
+            'spiral1d':     [spiral1d,      {'N':N,'D': 3,'d': 1,'eps': eps}],
+            'swissroll':    [swissroll,     {'N':N,'D': 3,'d': 2,'eps': eps}],
+            'moebius':      [moebius,       {'N':N,'D': 6,'d': 2,'eps': eps}],
+            'paraboloid':   [paraboloid,    {'N':N,'D': 30,'d': 9,'eps': eps}],
+            'nonlinear':    [nonlinear,     {'N':N,'D': 36,'d': 6,'eps': eps}]
+    }
 
 
-for i, (key, value) in enumerate(names.items()):
-    func = value[0]
-    kwargs = value[1]
-    X = func(**kwargs)
-    for algo in ['mle', '2nn', 'gride', 'geomle']:
+    for i, (key, value) in enumerate(names.items()):
+        func = value[0]
+        kwargs = value[1]
+        X = func(**kwargs)
+        for algo in ['mle', '2nn', 'gride', 'geomle']:
+            if args.algo is not None:
+                algo = args.algo
+
+            print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
+
+            if algo =='mle':
+                print('mle')
+                #mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
+                k1 = 10
+                mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+                np.save(f'{args.results_folder}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([mle_ids, mle_err, mle_rs]))
+
+            elif algo=='twonn':
+                print('twonn')
+                ie = IdEstimation(coordinates=X)
+                twonn_ids, twonn_err, twonn_rs = ie.return_id_scaling_2NN(N_min = 16)
+                np.save(f'{args.results_folder}/twonn/twonn_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([twonn_ids, twonn_err, twonn_rs]))
+
+            elif algo=='gride':
+                print('gride')
+                ie = IdEstimation(coordinates=X)
+                gride_ids, gride_err, gride_rs = ie.return_id_scaling_gride(range_max = 2048)
+                np.save(f'{args.results_folder}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
+
+            elif algo == 'geomle':
+                nsample= X.shape[0]
+                print('geomle')
+                #lets do explicit decimation here
+                geomle_ids, geomle_err, geomle_rs  = [], [], []
+                for i, fraction in enumerate([1, 2, 4, 8, 16,32, 64, 128, 256, 512]):
+                    nsubsample = int(nsample//fraction)
+                    print(fraction)
+                    if nsubsample > 2*args.k2:
+                        nrep = fraction
+                        X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
+                        ids, rs = geomle_opt(X_bootstrap, k1 = 5, k2 = 15, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
+
+                    geomle_ids.append(np.mean(ids))
+                    geomle_err.append( np.std(ids)/len(ids) )
+                    geomle_rs.append( np.mean(rs) )
+
+                np.save(f'{args.results_folder}/geomle/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+
         if args.algo is not None:
-            algo = args.algo
-
-        print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
-
-        if algo =='mle':
-            print('mle')
-            #mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
-            k1 = 10
-            mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
-            np.save(f'{results}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([mle_ids, mle_err, mle_rs]))
-
-        elif algo=='twonn':
-            print('twonn')
-            ie = IdEstimation(coordinates=X)
-            twonn_ids, twonn_err, twonn_rs = ie.return_id_scaling_2NN(N_min = 16)
-            np.save(f'{results}/twonn/twonn_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([twonn_ids, twonn_err, twonn_rs]))
-
-        elif algo=='gride':
-            print('gride')
-            ie = IdEstimation(coordinates=X)
-            gride_ids, gride_err, gride_rs = ie.return_id_scaling_gride(range_max = 2048)
-            np.save(f'{results}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
-
-        elif algo == 'geomle':
-            nsample= X.shape[0]
-            print('geomle')
-            #lets do explicit decimation here
-            geomle_ids, geomle_err, geomle_rs  = [], [], []
-            for i, fraction in enumerate([1, 2, 4, 8, 16,32, 64, 128, 256, 512]):
-                nsubsample = int(nsample//fraction)
-                print(fraction)
-                if nsubsample > 2*args.k2:
-                    nrep = fraction
-                    X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
-                    ids, rs = geomle_opt(X_bootstrap, k1 = 5, k2 = 15, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
-
-                geomle_ids.append(np.mean(ids))
-                geomle_err.append( np.std(ids)/len(ids) )
-                geomle_rs.append( np.mean(rs) )
-
-                #print(geomle_ids, geomle_rs)
-
-            np.save(f'{results}/geomle/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
-
-                    # with open(f'{args.results_folder}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_k{args.k1}_{args.k2}_nrep{nrep}_nboots{nbootstrap}.txt', 'a') as f:
-                    #     f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}\n')
-    if args.algo is not None:
-        break
-
-
-
-
+            break
 
 #*******************************************************************************
 if args.uniform_gride:
@@ -135,5 +111,8 @@ if args.uniform_gride:
         kwargs = value[1]
         X = func(**kwargs)
         print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
+        ie = IdEstimation(coordinates=X)
         gride_ids, gride_err, gride_rs = ie.return_id_scaling_gride(range_max = 4096)
-        np.save(f'{results}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
+        print(gride_ids)
+
+        np.save(f'{args.results_folder}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
