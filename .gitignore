@@ -3,3 +3,5 @@ results/
 plots/
 test/
 datasets/
+*.asv
+*.swp
