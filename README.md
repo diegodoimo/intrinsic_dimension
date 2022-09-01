@@ -33,7 +33,7 @@ and install the package intrinsicDimension:
 ```
 install.packages("intrinsicDimension")
 ```
-To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021b
+To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021b.
 
 
 ## Usage
