@@ -62,8 +62,23 @@ To reproduce decimation analysis on MNIST, ISOMAP, ISOLET datasets (fig ...) wit
 ```
 cd scripts
 conda activate gride
-python  real_test.py --eps 0.01 --algo 'gride'            #less than 1min
-python  real_test.py --eps 0.01 --algo 'twonn'            #less than 1min
-python  real_test.py --eps 0.01 --algo 'mle'              #less than 1min
-python  real_test.py --eps 0.01 --algo 'geomle'           #(this may take between 10 and 20 minutes)
+python  real_test.py --algo 'gride'            #less than 1min
+python  real_test.py --algo 'twonn'            #less than 1min
+python  real_test.py --algo 'mle'              #less than 1min
+python  real_test.py --algo 'geomle'           #(this may take between 10 and 20 minutes)
 ```
+
+
+**Time benchmark on cifar10**
+To reproduce time benchmark with gride, twonn, mle (levina-bickel), geomle:
+```
+cd scripts
+conda activate gride
+python  benchmark_test.py --algo 'gride'            #less than 1min
+python  benchmark_test.py --algo 'twonn'            #less than 1min
+python  benchmark_test.py --algo 'mle'              #less than 1min
+python  real_test.py --algo 'geomle'           #(this may take between 10 and 20 minutes)
+```
+
+
+
