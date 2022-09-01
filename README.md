@@ -53,7 +53,7 @@ To reproduce decimation analysis on syntetic datasets (fig ...) with ess:
 ```
 cd scripts
 conda activate gride
-python generate_datasets --syntetic --csv
+python generate_datasets --syntetic --csv --eps 0.01    #create a set of data with noise std 0.01 (50MB required)
 Rscript syntetic_ess.R #(this may take between 20 and 30 minutes)
 ```
 
