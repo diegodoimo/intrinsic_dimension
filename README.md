@@ -38,7 +38,7 @@ To reproduce the DANCo estimator tests you must have MATLAB installed. We used M
 
 ## Usage
 
-Tests on syntetic datasets
+**Tests on syntetic datasets**
 To reproduce decimation analysis on syntetic datasets (fig ...) with gride, twonn, mle (levina-bickel), geomle, with noise 0.01:
 
 ```
