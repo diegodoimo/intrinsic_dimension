@@ -22,7 +22,6 @@ for k=1:numel(fn)
 
     fraction =[1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
     N = [];
-    times = [];
     ids = [];
     fmt = "./results/syntetic/DANCo_"+fn{k}+".txt"
     fileID  = fopen(fmt, 'w');
