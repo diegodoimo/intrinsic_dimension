@@ -14,7 +14,9 @@ sns.set_style("whitegrid",rc={"grid.linewidth": 0.01})
 #*******************************************************************************
 "fig syntetic datastes"
 
-results = './results/datasets/syntetic'
+#results = './results/datasets/syntetic/old'
+
+results = '../scripts/results/syntetic_datasets'
 N = 32000
 eps=0
 names = {
@@ -29,78 +31,102 @@ names = {
 }
 
 
+#geenerate X data from danco and ess txt files
+def gen_data(filename, key):
+    X = np.genfromtxt(filename)
+    ids = []
+
+    nrep_check = [2**i for i in range(10)]
+
+    if key == 'ess':
+        ndata_tot = [16000/2**i for i in range(10)]
+    else:
+        ndata_tot = [int(16000/2**i) for i in range(10)]
+
+    for j, ndata in enumerate(ndata_tot):
+        assert np.sum(X[:, 0]==ndata) == nrep_check[j]  #check we do not loose data
+        ids.append(  np.mean(X[:, 1][ X[:, 0]==ndata]) )
+
+    return np.array(ids)
+
+
+
+
+colors = ['C0', 'C1', 'C2', 'C3', 'C4']
+titles = ['Gaussian', 'Spiral', 'Moebius', 'Uniform']
+algos = ['Gride', 'TwoNN', 'DANCo', 'ESS']
+
+
 fig = plt.figure(figsize = (9, 2.7))
 gs0 = GridSpec(1, 3)
 gs1 = GridSpec(1, 1)
-colors = ['C0', 'C1', 'C2', 'C3', 'C4']
-titles = ['Gaussian', 'Spiral', 'Moebius', 'Uniform']
-algos = ['Gride', 'TwoNN', 'MLE']
 for i, (key, kwargs) in enumerate(names.items()):
-    #print(key)
     if i <3:
         N = 16000
         ax = fig.add_subplot(gs0[i])
-    else:
-        N = 32000
-        if i==3:
-            ax = fig.add_subplot(gs1[i-3])
-        j=i-3
+        for l, name in enumerate(['gride', 'twonn', 'danco', 'ess']):
+            if name == 'ess':
+                X = gen_data(f'{results}/{name}/{key}_16k_eps0.01_ids.txt', name)
+            elif name == 'danco':
+                X = gen_data(f'{results}/{name}/DANCo_{key}.txt', name)
+            else:
+                X = np.load(f'{results}/{name}/{name}_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
 
-
-    X = np.load(f'{results}/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
-    xticks = [N/2**i for i in range(len(X))]
-    if i <3:
-        for l, name in enumerate(['gride', 'twonn', 'mle']):
-            X = np.load(f'{results}/{name}_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
-            if name == 'twonn':
-                X = X[:-1]
             xticks = [N/2**k for k in range(len(X))]
-            sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', label = f'{algos[l]}')
+            if i==0:
+                sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', label = f'{algos[l]}', zorder = 20-5*i)
+            else:
+                sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', zorder = 20-5*i) #do not plot legend
 
-
-    else:
-        #print(name, N, key, kwargs['D'], kwargs['d'], kwargs['eps'])
-        X = np.load(f'{results}/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
-        xticks = [N/2**i for i in range(len(X))]
-        sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', color = colors[j])
-
-    ax.set_xlabel('$N/k_2$')
-
-    if i< 3:
         ax.set_xscale('log')
         ax.axhline(kwargs["d"], color = 'gray', linestyle = '--')
         ax.set_title(f'{titles[i]}', fontsize = 13)
-    elif key =='uniform50_0':
-        ax.set_title(f'{titles[-1]}', fontsize = 13)
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-        ax.set_yticks([2, 5, 10, 20, 50])
-        ax.set_yticklabels([2, 5, 10, 20, 50])
-        ax.set_ylim(1.6, 60)
-        ax.set_ylabel('ID', fontsize = 13)
-        ax.axhline(kwargs["d"], color = colors[j], linestyle = '--')
+        ax.set_xlabel('$N/k_2$')
+
+        if i in [0]:
+            ax.set_ylabel('ID', fontsize = 13)
+            
     else:
-        ax.axhline(kwargs["d"], color = colors[j], linestyle = '--')
-    if i in [0]:
-        ax.set_ylabel('ID', fontsize = 13)
+
+        N = 32000
+        if i==3:
+            ax = fig.add_subplot(gs1[i-3])
+
+        X = np.load(f'{results}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
+        xticks = [N/2**i for i in range(len(X))]
+        sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', color = colors[i-3])
+
+        ax.set_xlabel('$N/k_2$')
+        if key =='uniform50_0':
+            ax.set_title(f'Gride {titles[-1]}', fontsize = 13)
+            ax.set_xscale('log')
+            ax.set_yscale('log')
+            ax.set_yticks([2, 5, 10, 20, 50])
+            ax.set_yticklabels([2, 5, 10, 20, 50])
+            ax.set_ylim(1.6, 60)
+            ax.set_ylabel('ID', fontsize = 13)
+            ax.axhline(kwargs["d"], color = colors[i-3], linestyle = '--')
+        else:
+            ax.axhline(kwargs["d"], color = colors[i-3], linestyle = '--')
 
 
-
-gs1.tight_layout(fig, rect = [0., 0, 0.27, 1])
 gs0.tight_layout(fig, rect = [0.3, 0, 1, 1])
+gs1.tight_layout(fig, rect = [0., 0, 0.27, 1])
+
+
+
 fig.text(0.01, 0.9, 'a', fontsize = 15, fontweight = 'bold')
 fig.text(0.33, 0.9, 'b', fontsize = 15, fontweight = 'bold')
 
 
 
+
+
+
+
+
+
 plt.savefig('./plots/syntetic_datasets.pdf')
-
-
-
-
-
-
-
 
 
 #*******************************************************************************
@@ -152,7 +178,5 @@ for i, (key, kwargs) in enumerate(names.items()):
         ax.set_xlabel('$N/k_2$')
 
 gs.tight_layout(fig)
-
-
 
 plt.savefig('./plots/ID_app1.pdf')

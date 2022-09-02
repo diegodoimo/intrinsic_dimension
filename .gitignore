@@ -3,6 +3,8 @@ results/
 plots/
 test/
 datasets/
+gride/
+*slurm*
 *.asv
 *.swp
 
