@@ -42,11 +42,12 @@ To reproduce the DANCo estimator tests you must have MATLAB installed. We used M
 ```
 cd scripts
 conda activate gride
-python generate_datasets --syntetic --csv --eps 0.01    #create syntetic datasets in .csv format with noise std 0.01 (50MB required) 
-python generate_datasets --syntetic --npy --eps 0.01    #create syntetic datasets in .npy format with noise std 0.01 (17MB required)
-python generate_datasets --syntetic --mat --eps 0.01    #create syntetic datasets in .mat (matlab struct)  with noise std 0.01 (17MB required)
+python generate_datasets --syntetic --csv --eps 0.01  --N 16000   #syntetic datasets; '.csv' format; noise std 0.01, # datapoints = 16k (50MB required) 
+python generate_datasets --syntetic --npy --eps 0.01  --N 16000   #syntetic datasets; '.npy' format; (17MB required)
+python generate_datasets --syntetic --mat --eps 0.01  --N 16000   #syntetic datasets; '.mat' format (matlab struct);  (17MB required)
 
-python generate_datasets --real                         #download real datasets
+python generate_datasets --real  --cifar                          #create cifar datasets (700 MB); only required for matlab/R calculaitons
+python generate_datasets --real  --download                       #download mnist isomap isolet (... MB)
 ```
 
 **Tests on syntetic datasets**
