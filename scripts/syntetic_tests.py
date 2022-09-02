@@ -4,12 +4,14 @@ from dadapy import IdEstimation
 from sklearn.neighbors import NearestNeighbors
 from utils.geomle import geomle, geomle_opt
 import argparse
-
-
+import sys
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_name', default = 'mnist', type = str)
 parser.add_argument('--algo', default = None, type = str)
+parser.add_argument('--N', default = 16000, type = int)
+parser.add_argument('--eps', default = 0.01, type = float)
 parser.add_argument('--nrep', default = 10, type = int)
 parser.add_argument('--nbootstrap', default = 20, type = int)
 parser.add_argument('--data_folder', default='/home/diego/ricerca/datasets', type=str)
@@ -18,18 +20,17 @@ parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/syntetic_datasets', type=str)
 parser.add_argument('--uniform_gride', action = 'store_true')
-args = parser.parse_args([])
+
+args = parser.parse_args()
 
 #*******************************************************************************
 rng = np.random.default_rng(2022)
 rng.random(args.seed)
 
-args.uniform_gride = True
-
-
 if not args.uniform_gride:
-    N = 16000
-    eps = 0.01
+    N = args.N
+    eps = args.eps
+
     names = {
             'uniform20':    [uniform,       {'N':N,'D': 20,'d': 5,'eps': eps}],
             'normal':       [normal,        {'N':N,'D': 3,'d': 2,'eps': eps}],
@@ -42,35 +43,46 @@ if not args.uniform_gride:
             'nonlinear':    [nonlinear,     {'N':N,'D': 36,'d': 6,'eps': eps}]
     }
 
+    for algo in ['mle', 'twonn', 'gride', 'geomle']:
 
-    for i, (key, value) in enumerate(names.items()):
-        func = value[0]
-        kwargs = value[1]
-        X = func(**kwargs)
-        for algo in ['mle', '2nn', 'gride', 'geomle']:
-            if args.algo is not None:
-                algo = args.algo
+        if args.algo is not None:
+            algo = args.algo  #compue the id on all the datasets with a single selected algorithm (see end for loop)
 
-            print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
+        for i, (key, value) in enumerate(names.items()):
 
+            func = value[0]
+            kwargs = value[1]
+            X = func(**kwargs)
+            nsample = X.shape[0]
+
+            print(f'computing ID for {key} dataset:\n{N} data\n{X.shape[1]} features\neps={eps}\ntrue ID = {kwargs["d"]}')
             if algo =='mle':
                 print('mle')
                 #mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
                 k1 = 10
                 mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
-                np.save(f'{args.results_folder}/mle/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([mle_ids, mle_err, mle_rs]))
+                path = f'{args.results_folder}/mle'
+                if not os.path.isdir(f'{path}'):
+                    os.mkdir(f'{path}')
+                np.save(f'{path}/mle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([mle_ids, mle_err, mle_rs]))
 
             elif algo=='twonn':
                 print('twonn')
                 ie = IdEstimation(coordinates=X)
                 twonn_ids, twonn_err, twonn_rs = ie.return_id_scaling_2NN(N_min = 16)
-                np.save(f'{args.results_folder}/twonn/twonn_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([twonn_ids, twonn_err, twonn_rs]))
+                path = f'{args.results_folder}/twonn'
+                if not os.path.isdir(f'{path}'):
+                    os.mkdir(f'{path}')
+                np.save(f'{path}/twonn_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([twonn_ids, twonn_err, twonn_rs]))
 
             elif algo=='gride':
                 print('gride')
                 ie = IdEstimation(coordinates=X)
                 gride_ids, gride_err, gride_rs = ie.return_id_scaling_gride(range_max = 2048)
-                np.save(f'{args.results_folder}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
+                path = f'{args.results_folder}/gride'
+                if not os.path.isdir(f'{path}'):
+                    os.mkdir(f'{path}')
+                np.save(f'{path}/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
 
             elif algo == 'geomle':
                 nsample= X.shape[0]
@@ -80,6 +92,7 @@ if not args.uniform_gride:
                 for i, fraction in enumerate([1, 2, 4, 8, 16,32, 64, 128, 256, 512]):
                     nsubsample = int(nsample//fraction)
                     print(fraction)
+                    sys.stdout.flush()
                     if nsubsample > 2*args.k2:
                         nrep = fraction
                         X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
@@ -89,12 +102,16 @@ if not args.uniform_gride:
                     geomle_err.append( np.std(ids)/len(ids) )
                     geomle_rs.append( np.mean(rs) )
 
-                np.save(f'{args.results_folder}/geomle/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+                path = f'{args.results_folder}/geomle'
+                if not os.path.isdir(f'{path}'):
+                    os.mkdir(f'{path}')
+                np.save(f'{path}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
         if args.algo is not None:
             break
 
-#*******************************************************************************
+
+
 if args.uniform_gride:
     N = 32000
     eps=0
@@ -110,9 +127,13 @@ if args.uniform_gride:
         func = value[0]
         kwargs = value[1]
         X = func(**kwargs)
+
         print(f'computing ID for {key} dataset: {N} data, {X.shape[1]} features, true ID = {kwargs["d"]}')
         ie = IdEstimation(coordinates=X)
         gride_ids, gride_err, gride_rs = ie.return_id_scaling_gride(range_max = 4096)
         print(gride_ids)
 
-        np.save(f'{args.results_folder}/gride/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
+        path = f'{args.results_folder}/gride'
+        if not os.path.isdir(f'{path}'):
+            os.mkdir(f'{path}')
+        np.save(f'{path}/gride_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([gride_ids, gride_err, gride_rs]))
