@@ -49,7 +49,7 @@ with open(f'{args.results_folder}/geomle_cifarN_k{args.k1}_{args.k2}_nrep{args.n
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
-    
+
     print('benchmark N:', algo)
     print(args.cifar_folder)
     CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
@@ -64,17 +64,19 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
 
         "gride"
         if algo == 'gride':
+            ie = IdEstimation(coordinates=X)
             start = time.time()
-            ids, stds, rs = return_id_scaling_gride(X)
+            ids, stds, rs = ie.return_id_scaling_gride(X, range_max=min(100, int(ndata/10) ) )
             delay = time.time()-start
             with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
 
         "twoNN"
         if algo == 'twonn':
+            ie = IdEstimation(coordinates=X)
             start = time.time()
             #ids, stds, rs = return_id_scaling_2NN(X, N_min = 10)
-            ids, stds, rs = compute_id_2NN(X, X.shape[0])
+            ids, stds, rs = ie.compute_id_2NN(X, X.shape[0])
             delay = time.time()-start
             with open(f'{args.results_folder}/twonn_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
@@ -130,7 +132,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
 
-    print('benchmark P:', algo) 
+    print('benchmark P:', algo)
 
     CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
     for p in [4, 5, 8, 11, 16, 22, 32, 45, 64, 90, 128, 181]:
