@@ -31,6 +31,27 @@ essN = np.genfromtxt(f'{data_folder}/ESS_cifar_N.csv', skip_header = 1, delimite
 essP = np.genfromtxt(f'{data_folder}/ESS_cifar_P.csv', skip_header = 1, delimiter = ',')[:, 1:]
 
 
+data_folder = '../scripts/results/real_datasets/time_benchmark'
+
+
+grideN = np.load(f'{data_folder}/gride_cifarN_ncpu8_nthr16.npy')
+grideP = np.load(f'{data_folder}/gride_cifarP_ncpu32_nthr16.npy')
+grideP
+grideN
+
+twonnN = np.genfromtxt(f'{data_folder}/2nn_simple_cifarN{nthr}.txt', skip_header = 1)
+twonnP = np.genfromtxt(f'{data_folder}/2nn_simple_cifarP{nthr}.txt', skip_header = 1)
+
+geomleN = np.genfromtxt(f'{data_folder}/geomle_cifarN_k{k1}_{k2}_nrep1_nboots20.txt', skip_header = 1)
+geomleP = np.genfromtxt(f'{data_folder}/geomle_cifarP_k{k1}_{k2}_nrep1_nboots20.txt', skip_header = 1)
+
+dancoN = np.genfromtxt(f'{data_folder}/DANCo_cifar_N.txt', skip_header = 1)
+dancoP = np.genfromtxt(f'{data_folder}/DANCo_cifar_P.txt', skip_header = 1)
+
+essN = np.genfromtxt(f'{data_folder}/ESS_cifar_N.csv', skip_header = 1, delimiter=',')[:, 1:]
+essP = np.genfromtxt(f'{data_folder}/ESS_cifar_P.csv', skip_header = 1, delimiter = ',')[:, 1:]
+
+
 
 
 #*******************************************************************************

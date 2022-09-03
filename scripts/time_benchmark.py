@@ -10,7 +10,7 @@ import time
 import torch
 import sys
 
-from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
+from utils.estimators import return_id_scaling_gride, return_id_scaling_mle, return_id_mle
 from dadapy import IdEstimation
 from utils.geomle import geomle, geomle_opt
 
@@ -91,17 +91,17 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'mle':
             k1 = 10
             start = time.time()
-            id  = return_id_mle(X, k1 = k1, unbiased = False)
+            id_  = return_id_mle(X, k1 = k1, unbiased = False)
             delay = time.time()-start
-            times[i] = np.array([p, delay, id])
+            times[i] = np.array([p, delay, id_[0]])
 
         "geomle"
         if algo == 'geomle':
-            filename = f'_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}'
+            filename += f'_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}'
             start = time.time()
             ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
             delay = time.time()-start
-            times[i] = np.array([p, delay, id])
+            times[i] = np.array([p, delay, np.mean(ids)])
 
     np.save(f'{args.results_folder}/{args.algo}_cifarN{filename}.npy', times)
     if args.algo is not None:
@@ -126,14 +126,14 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
                 images =CIFAR_train.data,
                 targets = np.array(CIFAR_train.targets),
                 category=3,
-                size = p)
-
+                size = p,
+                transform = True)
+        print(X.shape)
         "gride"
         if algo == 'gride':
 
             ie = IdEstimation(coordinates=X)
             start = time.time()
-            print(X)
             ids, stds, rs = ie.return_id_scaling_gride()
             delay = time.time()-start
             times[i] = np.array([p, delay, np.mean(ids[:3])])
@@ -151,15 +151,14 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'mle':
 
             start = time.time()
-            id  = return_id_mle(X, k1 = k1, unbiased = False)
+            id_  = return_id_mle(X, k1 = k1, unbiased = False)
             delay = time.time()-start
-            times[i] = np.array([p, delay, id[0]])
+            times[i] = np.array([p, delay, id_[0]])
 
 
         "geomle"
         if algo == 'geomle':
 
-            filename = f'_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}'
             start = time.time()
             ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
             delay = time.time()-start
