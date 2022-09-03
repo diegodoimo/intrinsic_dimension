@@ -26,7 +26,6 @@ parser.add_argument('--filename', default='', type=str)
 parser.add_argument('--k1', default=5, type=int)
 parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
-parser.add_argument('--filename', default='', type=str)
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
 
 args = parser.parse_args()
@@ -119,7 +118,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
     times = np.zeros((len(features), 3))
 
     for i, p in enumerate(features):
-
+        print(p)
         X = build_dataset(
                 images =CIFAR_train.data,
                 targets = np.array(CIFAR_train.targets),
