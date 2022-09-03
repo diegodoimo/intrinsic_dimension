@@ -5,6 +5,8 @@ import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 from torchvision.transforms import InterpolationMode
 import argparse
+import os
+
 
 from utils.estimators import return_id_scaling_gride
 from dadapy import IdEstimation
@@ -27,7 +29,7 @@ args = parser.parse_args()
 
 #*******************************************************************************
 if not os.path.isdir(f'{args.results_folder}'):
-    os.mkdir(f'{args.results_folder}')
+    os.makedirs(f'{args.results_folder}')
 
 
 #time benchmark as function of N:
@@ -47,10 +49,13 @@ with open(f'{args.results_folder}/geomle_cifarN_k{args.k1}_{args.k2}_nrep{args.n
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
-
+    
+    print('benchmark N:', algo)
+    print(args.cifar_folder)
     CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
     X_full = CIFAR_train.data.transpose(0, 3, 1, 2).reshape(50000, -1)
-
+    ndata = X_full.shape[0]
+    print(ndata)
     for fraction in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
         nsample = int(ndata//fraction)
         print(f'nsample = {nsample}')
@@ -60,7 +65,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         "gride"
         if algo == 'gride':
             start = time.time()
-            ids, stds, rs = return_id_scaling_gride(X, range_max = min(100, X.shape[0]//10))
+            ids, stds, rs = return_id_scaling_gride(X)
             delay = time.time()-start
             with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
@@ -124,6 +129,8 @@ def build_dataset(images, targets, category, size):
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
+
+    print('benchmark P:', algo) 
 
     CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
     for p in [4, 5, 8, 11, 16, 22, 32, 45, 64, 90, 128, 181]:
