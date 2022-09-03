@@ -30,7 +30,7 @@ parser.add_argument('--seed', default=42, type=int)
 
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
 
-args = parser.parse_args([])
+args = parser.parse_args()
 
 #*******************************************************************************
 #benchmak P
@@ -99,7 +99,6 @@ if args.N:
 
             "geomle"
             if algo == 'geomle':
-                filename += f'_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}'
                 start = time.time()
                 ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
                 delay = time.time()-start
@@ -136,6 +135,7 @@ if args.P:
             if algo == 'gride':
 
                 ie = IdEstimation(coordinates=X)
+                print(X.shape)
                 start = time.time()
                 ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
@@ -152,7 +152,7 @@ if args.P:
 
             "mle"
             if algo == 'mle':
-
+                k1=10
                 start = time.time()
                 id_  = return_id_mle(X, k1 = k1, unbiased = False)
                 delay = time.time()-start
