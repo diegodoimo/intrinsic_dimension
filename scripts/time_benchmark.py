@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 from torchvision.transforms import InterpolationMode
 import argparse
 import os
-
+import time
 
 from utils.estimators import return_id_scaling_gride
 from dadapy import IdEstimation
@@ -66,7 +66,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'gride':
             ie = IdEstimation(coordinates=X)
             start = time.time()
-            ids, stds, rs = ie.return_id_scaling_gride(X, range_max=min(100, int(ndata/10) ) )
+            ids, stds, rs = ie.return_id_scaling_gride(range_max=min(100, int(ndata/10) ) )
             delay = time.time()-start
             with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
@@ -76,7 +76,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
             ie = IdEstimation(coordinates=X)
             start = time.time()
             #ids, stds, rs = return_id_scaling_2NN(X, N_min = 10)
-            ids, stds, rs = ie.compute_id_2NN(X, X.shape[0])
+            ids, stds, rs = ie.compute_id_2NN()
             delay = time.time()-start
             with open(f'{args.results_folder}/twonn_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
