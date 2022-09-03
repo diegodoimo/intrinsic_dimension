@@ -10,7 +10,7 @@ import time
 import torch
 import sys
 
-from utils.estimators import return_id_scaling_gride, return_id_scaling_mle, return_id_mle
+from utils.estimators import return_id_scaling_gride, return_id_scaling_mle, return_id_mle, compute_id_2NN
 from dadapy import IdEstimation
 from utils.geomle import geomle, geomle_opt
 
@@ -75,17 +75,18 @@ if args.N:
             "gride"
             if algo == 'gride':
 
-                ie = IdEstimation(coordinates=X)
+                #ie = IdEstimation(coordinates=X)
                 start = time.time()
-                ids, stds, rs = ie.return_id_scaling_gride()
+                ids, stds, rs = return_id_scaling_gride(X, range_max = min(64, int(ndata/10)) )  #without class overheads
+                #ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
                 times[i] = np.array([p, delay, np.mean(ids)])
 
             "twoNN"
             if algo == 'twonn':
-                ie = IdEstimation(coordinates=X)
+                #ie = IdEstimation(coordinates=X)
                 start = time.time()
-                ids, stds, rs = ie.compute_id_2NN()
+                ids, stds, rs = compute_id_2NN(X)
                 delay = time.time()-start
                 times[i] = np.array([p, delay, np.mean(ids)])
 
@@ -134,19 +135,21 @@ if args.P:
             "gride"
             if algo == 'gride':
 
-                ie = IdEstimation(coordinates=X)
+                #ie = IdEstimation(coordinates=X)
                 print(X.shape)
                 start = time.time()
-                ids, stds, rs = ie.return_id_scaling_gride()
+                ids, stds, rs = ie.return_id_scaling_gride(X, min(64, int(ndata/10)))
+                #ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
                 times[i] = np.array([p, delay, np.mean(ids[:3])])
 
             "twoNN"
             if algo == 'twonn':
 
-                ie = IdEstimation(coordinates=X)
+                #ie = IdEstimation(coordinates=X)
                 start = time.time()
-                ids, stds, rs = ie.compute_id_2NN()
+                ids, stds, rs = compute_id_2NN(X)
+                #ids, stds, rs = ie.compute_id_2NN()
                 delay = time.time()-start
                 times[i] = np.array([p, delay, np.mean(ids)])
 
