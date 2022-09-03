@@ -1,4 +1,4 @@
-import numpy as np, return_id_scaling_mle
+import numpy as np
 #used to generate cifar datasets
 import torchvision
 import torchvision.datasets as datasets
@@ -10,7 +10,7 @@ import time
 import torch
 import sys
 
-from utils.estimators import return_id_scaling_gride
+from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
 from dadapy import IdEstimation
 from utils.geomle import geomle, geomle_opt
 
@@ -94,7 +94,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
 
             k1 = 10
             start = time.time()
-            mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+            ids, err, rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
             delay = time.time()-start
             with open(f'{args.results_folder}/mle_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
@@ -105,10 +105,10 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
                 f.write(f'{"N":6} {"id":12} {"time":12}\n')
 
             start = time.time()
-            id = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
+            ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
             delay = time.time()-start
             with open(f'{args.results_folder}/geomle_opt_cifarN_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
-                f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')
+                f.write(f'{X.shape[0]}  {np.mean(ids): .3f} {np.std(ids): .1f}   {delay}\n')
 
     if args.algo is not None:
         break
@@ -159,7 +159,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
                 f.write(f'{"N":6} {"id":12} {"time":12}\n')
 
             start = time.time()
-            mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
+            ids, err, rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False) 
             delay = time.time()-start
 
             with open(f'{args.results_folder}/mle_simple_cifarP.txt', 'a') as f:
@@ -171,8 +171,8 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
                 f.write(f'{"N":6} {"id":12} {"time":12}\n')
 
             start = time.time()
-            id = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
+            ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
             delay = time.time()-start
 
             with open(f'{args.results_folder}/geomle_opt_cifarP_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
-                    f.write(f'{X.shape[1]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')
+                    f.write(f'{X.shape[1]}  {np.mean(ids): .3f} {np.std(ids): .1f}   {delay}\n')

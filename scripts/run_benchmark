@@ -1,0 +1,5 @@
+#!/bin/bash
+for algo in 'mle'
+do
+sbatch --export=ALL,algo=$algo sbatch_benchmark
+done
