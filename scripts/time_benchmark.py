@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np, return_id_scaling_mle
 #used to generate cifar datasets
 import torchvision
 import torchvision.datasets as datasets
@@ -101,7 +101,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'mle':
             start = time.time()
             k1 = 10
-            ids, stds, rs = return_id_scaling_mle(X_full, N_min = 16, k1 = 10, unbiased = False)
+            mle_ids, mle_err, mle_rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
             delay = time.time()-start
             with open(f'{args.results_folder}/mle_cifarN.txt', 'a') as f:
                 f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
