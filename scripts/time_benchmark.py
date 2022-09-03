@@ -56,7 +56,6 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         algo = args.algo
 
     print('benchmark N:', algo)
-    print(f"n = {ndata}, type = {X_full.dtype}, shape = {X_full.shape}")
 
     ndata = X_full.shape[0]
     nscaling = [1, 2, 4, 8, 16, 32, 64, 128, 256]
@@ -90,9 +89,9 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'mle':
             k1 = 10
             start = time.time()
-            ids, err, rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+            id  = return_id_mle(X, k1 = k1, unbiased = False)
             delay = time.time()-start
-            times[i] = np.array([p, delay, np.mean(ids)])
+            times[i] = np.array([p, delay, id])
 
         "geomle"
         if algo == 'geomle':
@@ -100,6 +99,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
             start = time.time()
             ids, rs = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap)
             delay = time.time()-start
+            times[i] = np.array([p, delay, id])
 
     np.save(f'{args.results_folder}/{args.algo}_cifarN{filename}.npy', times)
     if args.algo is not None:
@@ -148,9 +148,9 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         if algo == 'mle':
 
             start = time.time()
-            ids, err, rs = return_id_scaling_mle(X, N_min = 16, k1 = k1, unbiased = False)
+            id  = return_id_mle(X, k1 = k1, unbiased = False)
             delay = time.time()-start
-            times[i] = np.array([p, delay, np.mean(ids)])
+            times[i] = np.array([p, delay, id])
 
 
         "geomle"

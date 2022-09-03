@@ -32,10 +32,6 @@ def compute_nn_distances(X, maxk, metric="euclidean", period=None):
 
     nbrs = NearestNeighbors(n_neighbors=maxk+1, metric=metric).fit(X)
     distances, dist_indices = nbrs.kneighbors(X)
-    #
-    # distances, dist_indices = compute_cross_nn_distances(
-    #     X, X, maxk + 1, metric=metric, period=period
-    # )
     return distances, dist_indices
 
 # ----------------------------------------------------------------------------------------------
@@ -166,6 +162,22 @@ def return_id_scaling_mle(
         rs_scaling[i] = np.mean(rs)
 
     return ids_scaling, ids_scaling_err, rs_scaling
+
+
+
+def return_id_mle(
+    X,
+    k1 = 10,
+    unbiased = False
+):
+    N = X.shape[0]
+    distances, dist_indices, mus, rs = _return_mus_scaling(X,
+                range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
+            )
+
+    id = 1/np.mean(mus, axis = 0)
+
+    return id
 
 
 
