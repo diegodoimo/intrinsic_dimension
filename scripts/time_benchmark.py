@@ -8,6 +8,7 @@ import argparse
 import os
 import time
 import torch
+import sys
 
 from utils.estimators import return_id_scaling_gride
 from dadapy import IdEstimation
@@ -26,7 +27,7 @@ parser.add_argument('--k1', default=5, type=int)
 parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
-args = parser.parse_args([])
+args = parser.parse_args()
 
 #*******************************************************************************
 #benchmak P
@@ -73,7 +74,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
     for fraction in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
         nsample = int(ndata//fraction)
         print(f'nsample = {nsample}')
-
+        sys.stdout.flush()
         X = X_full[np.random.choice(ndata, size = nsample, replace = False)]
 
         "gride"
@@ -81,7 +82,6 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
             print(X)
             ie = IdEstimation(coordinates=X)
             start = time.time()
-            print( min( 100, int(ndata/10) ) )
             ids, stds, rs = ie.return_id_scaling_gride(range_max=min(100, int(ndata/10) ) )
             delay = time.time()-start
             with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
