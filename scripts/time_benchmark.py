@@ -131,11 +131,14 @@ if args.P:
                     size = p,
                     transform = True)
             print(X.shape)
+            sys.stdout.flush()
+
             "gride"
             if algo == 'gride':
 
                 ie = IdEstimation(coordinates=X)
                 print(X.shape)
+                sys.stdout.flush()
                 start = time.time()
                 ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
