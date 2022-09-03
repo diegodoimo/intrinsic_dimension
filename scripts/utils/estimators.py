@@ -35,6 +35,63 @@ def compute_nn_distances(X, maxk, metric="euclidean", period=None):
     return distances, dist_indices
 
 # ----------------------------------------------------------------------------------------------
+def return_id_mle(
+    X,
+    k1 = 10,
+    unbiased = False
+):
+    N = X.shape[0]
+    distances, dist_indices, mus, rs = _return_mus_scaling(X,
+                range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
+            )
+
+    id = 1/np.mean(mus, axis = 0)
+
+    return id
+
+
+def return_id_scaling_mle(
+    X,
+    N_min=10,
+    k1 = 10,
+    unbiased = False
+):
+    N = X.shape[0]
+    max_ndec = int(math.log(N, 2)) - 1
+    Nsubsets = np.round(N / np.array([2**i for i in range(max_ndec)]))
+    Nsubsets = Nsubsets.astype(int)
+
+    if N_min is not None:
+        Nsubsets = Nsubsets[Nsubsets > N_min]
+
+    ids_scaling = np.zeros(Nsubsets.shape[0])
+    ids_scaling_err = np.zeros(Nsubsets.shape[0])
+    rs_scaling = np.zeros((Nsubsets.shape[0]))
+
+    for i, N_subset in enumerate(Nsubsets):
+
+        decimation = N_subset / N
+        nrep = int(np.rint(1.0 / decimation))
+        ids = np.zeros(nrep)
+        rs = np.zeros(nrep)
+
+        for j in range(nrep):
+            N_subset = int(np.rint(N * decimation))
+            idx = np.random.choice(N, size=N_subset, replace=False)
+            X_decimated = X[idx]
+            distances, dist_indices, mus, rs_ = _return_mus_scaling(X_decimated,
+                    range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
+                )
+            rs[j] = np.mean(rs_, axis = 0)
+            ids[j] = 1/np.mean(mus, axis = 0)
+
+        ids_scaling[i] = np.mean(ids)
+        ids_scaling_err[i] = np.std(ids) / len(ids) ** 0.5
+        rs_scaling[i] = np.mean(rs)
+
+    return ids_scaling, ids_scaling_err, rs_scaling
+
+    # ----------------------------------------------------------------------------------------------
 
 def _compute_id_2NN(mus, fraction, algorithm="base"):
 
@@ -58,7 +115,6 @@ def _compute_id_2NN(mus, fraction, algorithm="base"):
 
     return intrinsic_dim
 
-    # ----------------------------------------------------------------------------------------------
 def compute_id_2NN(
     X, N, algorithm="base", fraction=0.9, decimation=1, set_attr=True
 ):
@@ -89,8 +145,6 @@ def compute_id_2NN(
 
     return intrinsic_dim, intrinsic_dim_err, intrinsic_dim_scale
 
-    # ----------------------------------------------------------------------------------------------
-
 def return_id_scaling_2NN(
     X,
     N_min=10,
@@ -119,67 +173,6 @@ def return_id_scaling_2NN(
         )
 
     return ids_scaling, ids_scaling_err, rs_scaling
-
-
-def return_id_scaling_mle(
-    X,
-    N_min=10,
-    k1 = 10,
-    unbiased = False
-):
-    N = X.shape[0]
-    max_ndec = int(math.log(N, 2)) - 1
-    Nsubsets = np.round(N / np.array([2**i for i in range(max_ndec)]))
-    Nsubsets = Nsubsets.astype(int)
-
-    if N_min is not None:
-        Nsubsets = Nsubsets[Nsubsets > N_min]
-
-    ids_scaling = np.zeros(Nsubsets.shape[0])
-    ids_scaling_err = np.zeros(Nsubsets.shape[0])
-    rs_scaling = np.zeros((Nsubsets.shape[0]))
-
-    for i, N_subset in enumerate(Nsubsets):
-
-        decimation = N_subset / N
-        nrep = int(np.rint(1.0 / decimation))
-        ids = np.zeros(nrep)
-        rs = np.zeros(nrep)
-
-        #print(nrep)
-        for j in range(nrep):
-            N_subset = int(np.rint(N * decimation))
-            idx = np.random.choice(N, size=N_subset, replace=False)
-            X_decimated = X[idx]
-            distances, dist_indices, mus, rs_ = _return_mus_scaling(X_decimated,
-                    range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
-                )
-            rs[j] = np.mean(rs_, axis = 0)
-            ids[j] = 1/np.mean(mus, axis = 0)
-
-        ids_scaling[i] = np.mean(ids)
-        ids_scaling_err[i] = np.std(ids) / len(ids) ** 0.5
-        rs_scaling[i] = np.mean(rs)
-
-    return ids_scaling, ids_scaling_err, rs_scaling
-
-
-
-def return_id_mle(
-    X,
-    k1 = 10,
-    unbiased = False
-):
-    N = X.shape[0]
-    distances, dist_indices, mus, rs = _return_mus_scaling(X,
-                range_scaling=k1+2, maxk = k1+2, mg_estimator=True, unbiased = unbiased, k1 = k1
-            )
-
-    id = 1/np.mean(mus, axis = 0)
-
-    return id
-
-
 
 # ----------------------------------------------------------------------------------------------
 def return_id_scaling_gride(X, range_max=64, d0=0.001, d1=1000, eps=1e-7, mg_estimator = False, unbiased = False):
@@ -220,6 +213,8 @@ def return_id_scaling_gride(X, range_max=64, d0=0.001, d1=1000, eps=1e-7, mg_est
 
     return ids_scaling, ids_scaling_err, rs_scaling
 
+# ----------------------------------------------------------------------------------------------
+
 def _remove_zero_dists(distances):
     dtype = distances.dtype
 
@@ -230,7 +225,6 @@ def _remove_zero_dists(distances):
 
     return distances
 
-    # ----------------------------------------------------------------------------------------------
 def _mus_scaling_reduce_func(dist, start, range_scaling, maxk, mg_estimator = False, unbiased = False, k1 = None):
 
     max_step = int(math.log(range_scaling, 2))
