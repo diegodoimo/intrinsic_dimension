@@ -8,27 +8,28 @@ import argparse
 
 from utils.estimators import return_id_scaling_gride
 from dadapy import IdEstimation
+from utils.geomle import geomle, geomle_opt
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_name', default = 'mnist', type = str)
-parser.add_argument('--algo', default = '2nn', type = str)
-parser.add_argument('--nrep', default = 10, type = int)
+parser.add_argument('--cifar_folder', default = '.', type = str)
+parser.add_argument('--algo', default = None, type = str)
+parser.add_argument('--nrep', default = 1, type = int)
 parser.add_argument('--nbootstrap', default = 20, type = int)
-parser.add_argument('--ver', default = 'GeoMLE', choices = ['GeoMLE', 'fastGeoMLE'], type = str)
-parser.add_argument('--n_sample', default=-1, type=int)
-parser.add_argument('--n_components', default=-1, type=int)
-parser.add_argument('--data_folder', default='/home/diego/ricerca/datasets', type=str)
+parser.add_argument('--data_folder', default='../datasets/real', type=str)
 parser.add_argument('--filename', default='', type=str)
-parser.add_argument('--k1', default=10, type=int)
-parser.add_argument('--k2', default=40, type=int)
+parser.add_argument('--k1', default=5, type=int)
+parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
-parser.add_argument('--evaluate_ids', action="store_true")
-parser.add_argument('--benchmark_n', action="store_true")
-parser.add_argument('--benchmark_p', action="store_true")
-parser.add_argument('--results_folder', default='./results', type=str)
-args = parser.parse_args([])
+parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
+args = parser.parse_args()
 
 #*******************************************************************************
+if not os.path.isdir(f'{args.results_folder}'):
+    os.mkdir(f'{args.results_folder}')
+
+
 #time benchmark as function of N:
 with open(f'{args.results_folder}/gride_cifarN.txt', 'w') as f:
     f.write(f'{"N":6} {"id":12} {"time":12}\n')
@@ -42,43 +43,56 @@ with open(f'{args.results_folder}/mle_cifarN.txt', 'w') as f:
 with open(f'{args.results_folder}/geomle_cifarN_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'w') as f:
     f.write(f'{"N":6} {"id":12} {"time":12}\n')
 
-CIFAR_train = datasets.CIFAR10(root='/home/diego/ricerca/datasets/cifar10', train=True, download=False, transform=None)
-X_full = CIFAR_train.data.transpose(0, 3, 1, 2).reshape(50000, -1)
-for fraction in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
-    nsample = int(ndata//fraction)
-    print(f'nsample = {nsample}')
 
-    X = X_full[np.random.choice(ndata, size = nsample, replace = False)]
+for algo in ['gride', 'twonn', 'mle', 'geomle']:
+    if args.algo is not None:
+        algo = args.algo
 
-    "gride"
-    start = time.time()
-    ids, stds, rs = return_id_scaling_gride(X, range_max = min(100, X.shape[0]//10))
-    delay = time.time()-start
-    with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
-        f.write(f'{X.shape[0]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
+    CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
+    X_full = CIFAR_train.data.transpose(0, 3, 1, 2).reshape(50000, -1)
 
-    "twoNN"
-    start = time.time()
-    #ids, stds, rs = return_id_scaling_2NN(X, N_min = 10)
-    ids, stds, rs = compute_id_2NN(X, X.shape[0])
-    delay = time.time()-start
-    with open(f'{args.results_folder}/2nn_simple_cifarN.txt', 'a') as f:
-        f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+    for fraction in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
+        nsample = int(ndata//fraction)
+        print(f'nsample = {nsample}')
 
-    "mle"
-    start = time.time()
-    mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
-    delay = time.time()-start
-    with open(f'{args.results_folder}/mle_simple_cifarN.txt', 'a') as f:
-        f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+        X = X_full[np.random.choice(ndata, size = nsample, replace = False)]
 
-    "geomle"
-    start = time.time()
-    id = geomle(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
-    delay = time.time()-start
-    with open(f'{args.results_folder}/geomle_cifarN_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
-        f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')
+        "gride"
+        if algo == 'gride':
+            start = time.time()
+            ids, stds, rs = return_id_scaling_gride(X, range_max = min(100, X.shape[0]//10))
+            delay = time.time()-start
+            with open(f'{args.results_folder}/gride_cifarN.txt', 'a') as f:
+                f.write(f'{X.shape[0]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
 
+        "twoNN"
+        if algo == 'twonn':
+            start = time.time()
+            #ids, stds, rs = return_id_scaling_2NN(X, N_min = 10)
+            ids, stds, rs = compute_id_2NN(X, X.shape[0])
+            delay = time.time()-start
+            with open(f'{args.results_folder}/twonn_cifarN.txt', 'a') as f:
+                f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+
+        "mle"
+        if algo == 'mle':
+            start = time.time()
+            k1 = 10
+            ids, stds, rs = return_id_scaling_mle(X_full, N_min = 16, k1 = 10, unbiased = False)
+            delay = time.time()-start
+            with open(f'{args.results_folder}/mle_cifarN.txt', 'a') as f:
+                f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+
+        "geomle"
+        if algo == 'geomle':
+            start = time.time()
+            id = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
+            delay = time.time()-start
+            with open(f'{args.results_folder}/geomle_opt_cifarN_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
+                f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')
+
+    if args.algo is not None:
+        break
 
 #*******************************************************************************
 with open(f'{args.results_folder}/gride_cifarP.txt', 'w') as f:
@@ -106,39 +120,48 @@ def build_dataset(images, targets, category, size):
     X_np = X.numpy().reshape(-1, np.prod(X[0].shape))
     return X_np
 
-CIFAR_train = datasets.CIFAR10(root='/home/diego/ricerca/datasets/cifar10', train=True, download=False, transform=None)
-for p in [4, 5, 8, 11, 16, 22, 32, 45, 64, 90, 128, 181]:
 
-    X = build_dataset(
-            images =CIFAR_train.data,
-            targets = np.array(CIFAR_train.targets),
-            category=3,
-            size = p)
+for algo in ['gride', 'twonn', 'mle', 'geomle']:
+    if args.algo is not None:
+        algo = args.algo
 
-    "gride"
-    start = time.time()
-    ids, stds, rs = return_id_scaling_gride(X)
-    delay = time.time()-start
-    with open(f'{args.results_folder}/gride_cifarP.txt', 'a') as f:
-        f.write(f'{X.shape[1]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
+    CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
+    for p in [4, 5, 8, 11, 16, 22, 32, 45, 64, 90, 128, 181]:
 
-    "twoNN"
-    start = time.time()
-    ids, stds, rs = compute_id_2NN(X, X.shape[0])
-    delay = time.time()-start
-    with open(f'{args.results_folder}/2nn_simple_cifarP.txt', 'a') as f:
-        f.write(f'{X.shape[1]} {ids: .5f} {delay: .5f}\n')
+        X = build_dataset(
+                images =CIFAR_train.data,
+                targets = np.array(CIFAR_train.targets),
+                category=3,
+                size = p)
 
-    "mle"
-    start = time.time()
-    mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
-    delay = time.time()-start
-    with open(f'{args.results_folder}/mle_simple_cifarP.txt', 'a') as f:
-        f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+        "gride"
+        if algo == 'gride':
+            start = time.time()
+            ids, stds, rs = return_id_scaling_gride(X)
+            delay = time.time()-start
+            with open(f'{args.results_folder}/gride_cifarP.txt', 'a') as f:
+                f.write(f'{X.shape[1]} {np.mean(ids[:3]): .5f} {delay: .5f}\n')
 
-    "geomle"
-    start = time.time()
-    id = geomle(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
-    delay = time.time()-start
-    with open(f'{args.results_folder}/geomle_cifarP_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
-            f.write(f'{X.shape[1]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')
+        "twoNN"
+        if algo == 'twonn':
+            start = time.time()
+            ids, stds, rs = compute_id_2NN(X, X.shape[0])
+            delay = time.time()-start
+            with open(f'{args.results_folder}/twonn_simple_cifarP.txt', 'a') as f:
+                f.write(f'{X.shape[1]} {ids: .5f} {delay: .5f}\n')
+
+        "mle"
+        if algo == 'mle':
+            start = time.time()
+            mle_ids, mle_err, mle_rs = return_id_scaling_gride(X, range_max = 2048, mg_estimator = True)
+            delay = time.time()-start
+            with open(f'{args.results_folder}/mle_simple_cifarP.txt', 'a') as f:
+                f.write(f'{X.shape[0]} {ids: .5f} {delay: .5f}\n')
+
+        "geomle"
+        if algo == 'geomle':
+            start = time.time()
+            id = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap, ver = args.ver)
+            delay = time.time()-start
+            with open(f'{args.results_folder}/geomle_opt_cifarP_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
+                    f.write(f'{X.shape[1]}  {np.mean(id): .3f} {np.std(id): .1f}   {delay}\n')

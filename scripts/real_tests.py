@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io
 import argparse
 from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
-from dadapy import IdEstimation as ie
+from dadapy import IdEstimation
 import torchvision.datasets as datasets
 from utils.geomle import geomle
 
@@ -17,7 +17,7 @@ parser.add_argument('--k1', default=5, type=int)
 parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/real_datasets', type=str)
-args = parser.parse_args()
+args = parser.parse_args([])
 
 rng = np.random.default_rng(2022)
 rng.random(args.seed)
@@ -53,8 +53,7 @@ data = {
 }
 
 
-args.algo = 'geomle'
-for algo in ['gride', '2nn', 'mle', 'geomle']:
+for algo in ['gride', 'twonn', 'mle']:
     if args.algo is not None:
         algo = args.algo
 
@@ -66,19 +65,19 @@ for algo in ['gride', '2nn', 'mle', 'geomle']:
             print(f'gride ndata= {nsample}')
             ie = IdEstimation(coordinates=X_full)
             ids, stds, rs = ie.return_id_scaling_gride(range_max = 128)
-            np.save(f'{args.results_folder}/gride_{args.data_name}_{nsample}.npy', np.array([ids, stds, rs]) )
+            np.save(f'{args.results_folder}/gride_{key}.npy', np.array([ids, stds, rs]) )
 
-        elif algo=='2nn':
+        elif algo=='twonn':
             print(f'2nn ndata= {nsample}')
             ie = IdEstimation(coordinates=X_full)
             ids, stds, rs = ie.return_id_scaling_2NN(N_min = 16)
-            np.save(f'{args.results_folder}/2nn_{args.data_name}_{nsample}.npy', np.array([ids, stds, rs]) )
+            np.save(f'{args.results_folder}/twonn_{key}.npy', np.array([ids, stds, rs]) )
 
         elif algo=='mle':
             print(f'mle ndata= {nsample}')
             k1 = 10
             ids, stds, rs = return_id_scaling_mle(X_full, N_min = 16, k1 = 10, unbiased = False)
-            np.save(f'{args.results_folder}/mle_{args.data_name}_{nsample}.npy', np.array([ids, stds, rs]) )
+            np.save(f'{args.results_folder}/mle_{key}.npy', np.array([ids, stds, rs]) )
 
         elif algo == 'geomle':
             print(f'geomle ndata = {nsample}')

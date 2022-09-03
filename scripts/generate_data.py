@@ -56,6 +56,7 @@ if args.syntetic:
         #tests on ESS
         if args.csv:
             path = f'{folder}/csv'
+            print(path)
             np.savetxt(f'{path}/{key}_{int(N/1000)}k_eps{eps}.csv', X, delimiter=",")
         mdict[key] =  X
 
