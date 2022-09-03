@@ -30,7 +30,7 @@ parser.add_argument('--seed', default=42, type=int)
 
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
 
-args = parser.parse_args([])
+args = parser.parse_args()
 
 #*******************************************************************************
 #benchmak P
