@@ -28,7 +28,7 @@ parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
 
-args = parser.parse_args()
+args = parser.parse_args([])
 
 #*******************************************************************************
 #benchmak P
@@ -50,6 +50,9 @@ filename = f'{args.filename}'
 
 CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
 X_full = build_dataset(images =CIFAR_train.data)
+
+args.algo = 'gride'
+
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
@@ -72,7 +75,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
 
             ie = IdEstimation(coordinates=X)
             start = time.time()
-            ids, stds, rs = ie.return_id_scaling_gride(range_max=min(100, int(ndata/10) ) )
+            ids, stds, rs = ie.return_id_scaling_gride()
             delay = time.time()-start
             times[i] = np.array([p, delay, np.mean(ids)])
 
@@ -130,7 +133,8 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
 
             ie = IdEstimation(coordinates=X)
             start = time.time()
-            ids, stds, rs = ie.return_id_scaling_gride(X)
+            print(X)
+            ids, stds, rs = ie.return_id_scaling_gride()
             delay = time.time()-start
             times[i] = np.array([p, delay, np.mean(ids[:3])])
 
@@ -149,7 +153,7 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
             start = time.time()
             id  = return_id_mle(X, k1 = k1, unbiased = False)
             delay = time.time()-start
-            times[i] = np.array([p, delay, id])
+            times[i] = np.array([p, delay, id[0]])
 
 
         "geomle"
