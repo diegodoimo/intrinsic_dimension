@@ -26,7 +26,9 @@ parser.add_argument('--filename', default='', type=str)
 parser.add_argument('--k1', default=5, type=int)
 parser.add_argument('--k2', default=15, type=int)
 parser.add_argument('--seed', default=42, type=int)
+parser.add_argument('--filename', default='', type=str)
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
+
 args = parser.parse_args()
 
 #*******************************************************************************
@@ -45,7 +47,8 @@ if not os.path.isdir(f'{args.results_folder}'):
     os.makedirs(f'{args.results_folder}')
 
 
-filename = ''
+filename = f'{args.filename}'
+
 CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
 X_full = build_dataset(images =CIFAR_train.data)
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
@@ -103,7 +106,8 @@ for algo in ['gride', 'twonn', 'mle', 'geomle']:
         break
 
 #*******************************************************************************
-filename = ''
+filename = f'{args.filename}'
+
 for algo in ['gride', 'twonn', 'mle', 'geomle']:
     if args.algo is not None:
         algo = args.algo
