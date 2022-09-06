@@ -37,20 +37,13 @@ def gen_data(filename, key):
     ids = []
 
     nrep_check = [2**i for i in range(10)]
-
-    if key == 'ess':
-        ndata_tot = [16000/2**i for i in range(10)]
-    else:
-        ndata_tot = [int(16000/2**i) for i in range(10)]
+    ndata_tot = [int(16000/2**i) for i in range(10)]
 
     for j, ndata in enumerate(ndata_tot):
-        assert np.sum(X[:, 0]==ndata) == nrep_check[j]  #check we do not loose data
+        assert np.sum(X[:, 0]==ndata) == nrep_check[j]  #check we do not lose data
         ids.append(  np.mean(X[:, 1][ X[:, 0]==ndata]) )
 
     return np.array(ids)
-
-
-
 
 colors = ['C0', 'C1', 'C2', 'C3', 'C4']
 titles = ['Gaussian', 'Spiral', 'Moebius', 'Uniform']
@@ -66,9 +59,9 @@ for i, (key, kwargs) in enumerate(names.items()):
         ax = fig.add_subplot(gs0[i])
         for l, name in enumerate(['gride', 'twonn', 'danco', 'ess']):
             if name == 'ess':
-                X = gen_data(f'{results}/{name}/{key}_16k_eps0.01_ids.txt', name)
+                X = gen_data(f'{results}/{name}/{key}_16k_eps0.01.txt', name)
             elif name == 'danco':
-                X = gen_data(f'{results}/{name}/DANCo_{key}.txt', name)
+                X = gen_data(f'{results}/{name}/DANCo_16k_eps0.01_{key}.txt', name)
             else:
                 X = np.load(f'{results}/{name}/{name}_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
 
@@ -85,7 +78,7 @@ for i, (key, kwargs) in enumerate(names.items()):
 
         if i in [0]:
             ax.set_ylabel('ID', fontsize = 13)
-            
+
     else:
 
         N = 32000
@@ -113,25 +106,13 @@ for i, (key, kwargs) in enumerate(names.items()):
 gs0.tight_layout(fig, rect = [0.3, 0, 1, 1])
 gs1.tight_layout(fig, rect = [0., 0, 0.27, 1])
 
-
-
 fig.text(0.01, 0.9, 'a', fontsize = 15, fontweight = 'bold')
 fig.text(0.33, 0.9, 'b', fontsize = 15, fontweight = 'bold')
-
-
-
-
-
-
-
-
-
 plt.savefig('./plots/syntetic_datasets.pdf')
 
 
 #*******************************************************************************
 "appendix syntetic datasets"
-
 
 N = 16000
 eps = 0.01
@@ -148,35 +129,52 @@ names = {
     'nonlinear':        {'N':N,'D': 36,'d': 6,'eps': eps}
 }
 
-fig = plt.figure(figsize = (6, 6))
-gs = GridSpec(3, 3)
+
+
+
+colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
+algos = ['Gride', 'TwoNN', 'DANCo', 'ESS', 'MLE', 'GeoMLE']
+
+
+fig = plt.figure(figsize = (11, 5.5))
 
 for i, (key, kwargs) in enumerate(names.items()):
-    #print(key)
-    ax = fig.add_subplot(gs[i])
-
-    for name in ['mle', 'twonn', 'gride']:
-        X = np.load(f'{results}/{name}_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
-        if name == 'twonn':
-            #print(X.shape)
-            X = X[:-1]
-            #print(X.shape)
-
-        xticks = [N/2**i for i in range(len(X))]
-        if i ==0:
-            sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', label = f'{name}')
+    gs = GridSpec(1, 1)
+    N = 16000
+    ax = fig.add_subplot(gs[0])
+    for l, name in enumerate(['gride', 'twonn', 'danco', 'ess', 'mle', 'geomle']):
+        if name == 'ess':
+                X = gen_data(f'{results}/{name}/{key}_16k_eps{eps}.txt', name)
+        elif name == 'danco':
+            X = gen_data(f'{results}/{name}/DANCo_16k_eps{eps}_{key}.txt', name)
         else:
-            sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o')
-    ax.axhline(kwargs["d"])
+            X = np.load(f'{results}/{name}/{name}_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy')[0]
+
+        xticks = [N/2**k for k in range(len(X))]
+        if i==0:
+            sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o', label = f'{algos[l]}')
+        else:
+            sns.lineplot(x=xticks, y=X, ax = ax, marker = 'o') #do not plot legend
+
     ax.set_title(f'{key} ({kwargs["D"]}, {kwargs["d"]})')
     ax.set_xscale('log')
-    if i in [0, 1, 2, 3, 4, 5]:
+    if i+1 in [0, 1, 2, 3, 4]:
         ax.set_xticklabels([])
-    if i in [0, 3, 6]:
-        ax.set_ylabel('ID')
-    if i in [6, 7, 8]:
+    if i+1 in [1, 5]:
+        ax.set_ylabel('ID', fontsize = 15)
+    if i+1 in [5, 6, 7, 8, 9]:
         ax.set_xlabel('$N/k_2$')
+    ax.axhline(kwargs["d"], linestyle = '--', color = 'black', label = 'True ID')
 
-gs.tight_layout(fig)
+    if i > 3:
+        gs.tight_layout(fig, rect = [0.98*(i-4)/5, 0.0, 0.98*(i-3)/5, 0.51])
 
-plt.savefig('./plots/ID_app1.pdf')
+    else:
+        if i == 0:
+            gs.tight_layout(fig, rect = [0.2, 0.55, 0.4, 0.95])
+            plt.legend(bbox_to_anchor =(-0.55, 1.), fontsize = 11)
+        else:
+            gs.tight_layout(fig, rect = [0.98*(i+1)/5, 0.55, 0.98*(i+2)/5, 0.95])
+
+fig.text(0.45, 0.95, f'$\sigma$  = {eps}', fontsize = 15, weight = 'bold')
+plt.savefig(f'./plots/app_idsyntetic_eps{eps}.pdf')

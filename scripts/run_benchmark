@@ -1,0 +1,5 @@
+#!/bin/bash
+for algo in 'gride' 
+do
+sbatch --export=ALL,algo=$algo sbatch_benchmark
+done

@@ -1,6 +1,7 @@
 from utils.syntetic_datasets import *
 from scipy.io import savemat
 import numpy as np
+import scipy
 
 #used to generate cifar datasets
 import torchvision
@@ -22,6 +23,8 @@ parser.add_argument('--csv', action = 'store_true')
 parser.add_argument('--mat', action = 'store_true')
 parser.add_argument('--npy', action = 'store_true')
 
+
+parser.add_argument('--cifar', action = 'store_true')
 parser.add_argument('--data_folder', default='../datasets', type=str)
 args = parser.parse_args()
 
@@ -56,6 +59,7 @@ if args.syntetic:
         #tests on ESS
         if args.csv:
             path = f'{folder}/csv'
+            print(path)
             np.savetxt(f'{path}/{key}_{int(N/1000)}k_eps{eps}.csv', X, delimiter=",")
         mdict[key] =  X
 
@@ -110,3 +114,21 @@ if args.real:
         CIFAR_train = datasets.CIFAR10(root='/home/diego/ricerca/datasets/cifar10', train=True, download=False, transform=None)
         full_cifar = CIFAR_train.data.transpose(0, 3, 1, 2).reshape(50000, -1)
         np.save(f'{path}/cifar_training.npy', full_cifar)
+
+    else:
+        mat = scipy.io.loadmat(f'{folder}/face_data.mat')
+        isomap_faces = mat['images'].T
+        np.save(f'{folder}/isomap.npy', isomap_faces)
+
+        isolet_train = np.genfromtxt(f'{folder}/isolet1+2+3+4.data', delimiter = ',')[:, :-1]
+        isolet_val = np.genfromtxt(f'{folder}/isolet5.data', delimiter = ',')[:, :-1]
+        isolet = np.concatenate((isolet_train, isolet_val), axis = 0)
+        np.save(f'{folder}/isolet.npy', isolet)
+
+        "mnist dataset normalized from 0 to 1 only 1s are used as benchmark"
+        mnist_mat = scipy.io.loadmat(f'{folder}/mnist.mat')
+        MNIST = mnist_mat['training'][0, 0][3].transpose(2, 0,1)
+        MNIST = MNIST.reshape(-1, 784)
+        tg = mnist_mat['training'][0, 0][4].flatten()
+        MNIST = MNIST[tg==1]
+        np.save(f'{folder}/mnist_ones.npy', MNIST)
