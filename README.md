@@ -44,7 +44,7 @@ python generate_datasets --syntetic --csv --eps 0.01  --N 16000   #syntetic data
 python generate_datasets --syntetic --npy --eps 0.01  --N 16000   #syntetic datasets; '.npy' format; (17MB required)
 python generate_datasets --syntetic --mat --eps 0.01  --N 16000   #syntetic datasets; '.mat' format (matlab struct);  (17MB required)
 
-python generate_datasets --real  --cifar                          #create cifar datasets (700 MB); only required for matlab/R calculaitons
+python generate_datasets --real  --cifar                          #create cifar datasets (1.1 GB); only required for matlab/R calculaitons
 python generate_datasets --real  --download                       #download mnist isomap isolet (... MB)
 ```
 
