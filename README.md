@@ -11,13 +11,10 @@ Platforms:
 You can get miniconda from https://docs.conda.io/en/latest/miniconda.html, or install the dependencies shown below manually.
 
 ```
-conda create --name gride python numpy scipy scikit-learn seaborn 
-```
-
-```
-conda activate gride
-pip install dadapy                                      #official version of gride (and much more)
-conda install pytorch torchvision cpuonly -c pytorch    #(cifar mnist datasets)
+conda create -n gride 
+conda install python numpy scipy scikit-learn seaborn 
+pip install dadapy                                        #official version of gride (and much more)
+conda install pytorch torchvision cpuonly -c pytorch      #(cifar mnist datasets)
 ```
 
 To reproduce the ESS estimator tests install R in the conda environment with: 
@@ -31,10 +28,10 @@ R
 ```
 and install the package intrinsicDimension:
 ```
-install.packages("intrinsicDimension")
-install.packages("reticulate")
+install.packages("intrinsicDimension")                  #ess estimator
+install.packages("reticulate")                          #numpy interface 
 ```
-To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021b.
+To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021a.
 
 
 ## Usage
