@@ -9,6 +9,9 @@ sns.set_style("ticks")
 sns.set_style("whitegrid",rc={"grid.linewidth": 1})
 
 
+
+local_ess = True
+
 data_folder = './results/time_benchmarks'
 k1 = 10
 k2 = 40
@@ -31,35 +34,41 @@ essN = np.genfromtxt(f'{data_folder}/ESS_cifar_N.csv', skip_header = 1, delimite
 essP = np.genfromtxt(f'{data_folder}/ESS_cifar_P.csv', skip_header = 1, delimiter = ',')[:, 1:]
 
 
-twonnP
-grideP
+
+
+def get_ids(arr, rank = 4):
+    ndata = arr[0, 0]
+    ids, stds = [], []
+    for i in range(rank):
+        ndec = 2**i
+        mask = arr[:, 0]==ndec
+        ids.append( np.mean(arr[mask][:, 1]))
+        stds.append( np.std(arr[mask][:, 1]))
+
+    return np.array([ids, stds])
+
+
+
+
+if local_ess:
+    pass
+
+
+
+
 
 data_folder = '../scripts/results/real_datasets/time_benchmark'
 
 
 grideN = np.load(f'{data_folder}/gride_cifarN_ncpu16_thr16.npy')
 grideP = np.load(f'{data_folder}/gride_cifarP_ncpu16_thr16.npy')
-grideP
-grideN
-
-
-
 
 twonnN = np.load(f'{data_folder}/twonn_cifarN_ncpu32_thr16.npy')
 twonnP = np.load(f'{data_folder}/twonn_cifarP_ncpu32_thr16.npy')
 
 
-twonnN
-twonnP
-
-
-
 mleN = np.load(f'{data_folder}/mle_cifarN_ncpu32_thr16.npy')
 mleP = np.load(f'{data_folder}/mle_cifarP_ncpu32_thr16.npy')
-
-mleN
-mleP
-
 
 
 geomleN = np.genfromtxt(f'{data_folder}/geomle_cifarN_k{k1}_{k2}_nrep1_nboots20.txt', skip_header = 1)

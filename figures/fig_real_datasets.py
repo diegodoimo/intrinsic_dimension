@@ -3,6 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from matplotlib.ticker import NullFormatter
+import matplotlib
 import pandas as pd
 sns.set_context("paper",)
 sns.set_style("ticks")
@@ -113,7 +114,7 @@ fig = plt.figure(figsize = (10, 2.8))
 
 gs = GridSpec(1, 1)
 ax = fig.add_subplot(gs[0])
-x = np.unique(danco_mnist[:, 0])
+x = np.log( np.unique(danco_mnist[:, 0]) )
 
 ax.errorbar(x = x, y = gride_mnist[0][:len(x)][::-1], yerr = gride_mnist[1][:len(x)], color = 'C0')
 sns.lineplot(ax = ax, x=x, y = gride_mnist[0][:len(x)][::-1], label = 'Gride', marker = 'o', color = 'C0')
@@ -124,7 +125,7 @@ sns.lineplot(ax = ax, x=x, y = twonn_mnist[0][:len(x)][::-1], label = 'twoNN', m
 
 
 
-df_danco  = pd.DataFrame(np.array([danco_mnist[:, 1], danco_mnist[:, 0]]).T, columns = ['ID', 'n'])
+df_danco  = pd.DataFrame(np.array([danco_mnist[:, 1], np.log(danco_mnist[:, 0] ) ]).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax, data = df_danco, x = 'n', y = 'ID', marker = 'o',label = 'DANCo',
                                 linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C2')
 
@@ -139,21 +140,33 @@ sns.lineplot(ax = ax, x=x, y = ess_mnist[0][:len(x)][::-1], label = 'ESS', marke
 ax.errorbar(x = x, y = mle_mnist[0][:len(x)][::-1], yerr = mle_mnist[1][:len(x)], color = 'C4')
 sns.lineplot(ax = ax, x=x, y = mle_mnist[0][:len(x)][::-1], marker = 'o', color = 'C4', label = 'MLE')
 
-df_geo  = pd.DataFrame(np.array([geo_mnist[:, 1], geo_mnist[:, 0]]).T, columns = ['ID', 'n'])
+df_geo  = pd.DataFrame(np.array([geo_mnist[:, 1], np.log(geo_mnist[:, 0]) ]).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax, data = df_geo, x = 'n', y = 'ID', marker = 'o',label = 'GeoMLE',
                                 linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C5')
 
 
+xticks = [1000, 2000, 4000, 8000]
+ax.set_xticks(np.log(xticks))
+ax.set_xticklabels(xticks)
 
 ax.set_ylabel('ID', fontsize = 15)
-ax.set_xlabel('n° data', fontsize = 14)
+ax.set_xlabel('N', fontsize = 14)
 
 gs.tight_layout(fig, rect = [0.2, 0.01, 0.48, 0.99])
 plt.legend(fontsize = 10, bbox_to_anchor=(-1.,.83), loc="upper left",)
 
+
+
+
+
+
+
+
+
+
 gs = GridSpec(1, 1)
 ax1 = fig.add_subplot(gs[0])
-x = np.unique(danco_isomap[:, 0])
+x = np.log(np.unique(danco_isomap[:, 0]))
 
 ax1.errorbar(x = x, y = gride_isomap[0][:len(x)][::-1], yerr = gride_isomap[1][:len(x)], color = 'C0')
 sns.lineplot(ax = ax1, x=x, y = gride_isomap[0][:len(x)][::-1], marker = 'o', color = 'C0')
@@ -161,13 +174,13 @@ sns.lineplot(ax = ax1, x=x, y = gride_isomap[0][:len(x)][::-1], marker = 'o', co
 ax1.errorbar(x = x, y = twonn_isomap[0][:len(x)][::-1], yerr = twonn_isomap[1][:len(x)], color = 'C1')
 sns.lineplot(ax = ax1, x=x, y = twonn_isomap[0][:len(x)][::-1], marker = 'o', color = 'C1')
 
-df_danco  = pd.DataFrame(np.array([danco_isomap[:, 1], danco_isomap[:, 0]]).T, columns = ['ID', 'n'])
+df_danco  = pd.DataFrame(np.array([danco_isomap[:, 1], np.log(danco_isomap[:, 0]) ]).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax1, data = df_danco, x = 'n', y = 'ID', marker = 'o',
                         linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C2')
 
 
 ax1.errorbar(x = x, y = ess_isomap[0][:len(x)][::-1], yerr = ess_isomap[1][:len(x)], color = 'C3')
-sns.lineplot(ax = ax1, x=x, y = ess_isomap[0][:len(x)][::-1], label = 'ESS', marker = 'o', color = 'C3')
+sns.lineplot(ax = ax1, x=x, y = ess_isomap[0][:len(x)][::-1], marker = 'o', color = 'C3')
 
 # df_ess  = pd.DataFrame(np.array([ess_isomap[:, 1], ess_isomap[:, 0]]).T, columns = ['ID', 'n'])
 # sns.lineplot(ax = ax1, data = df_ess, x = 'n', y = 'ID', marker = 'o',
@@ -177,19 +190,29 @@ ax1.errorbar(x = x, y = mle_isomap[0][:len(x)][::-1], yerr = mle_isomap[1][:len(
 sns.lineplot(ax = ax1, x=x, y = mle_isomap[0][:len(x)][::-1], marker = 'o', color = 'C4')
 
 
-df_geo  = pd.DataFrame(np.array([geo_isomap[:, 1], geo_isomap[:, 0]]).T, columns = ['ID', 'n'])
+df_geo  = pd.DataFrame(np.array([geo_isomap[:, 1], np.log(geo_isomap[:, 0])  ]).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax1, data = df_geo, x = 'n', y = 'ID', marker = 'o',
                             linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C5' )
 
 
-ax1.set_xlabel('n° data', fontsize = 14)
+xticks = [100, 200, 400, 800]
+ax1.set_xticks(np.log(xticks))
+ax1.set_xticklabels(xticks)
+#ax1.set_xlim(70, 850)
+
+ax1.set_xlabel('N', fontsize = 14)
 ax1.set_ylabel('')
 gs.tight_layout(fig, rect = [0.49, 0.01, 0.73, 0.99])
 
 
+
+
+
+
+
 gs = GridSpec(1, 1)
 ax2 = fig.add_subplot(gs[0])
-x = np.unique(danco_isolet[:, 0])
+x = np.log(np.unique(danco_isolet[:, 0]))
 
 ax2.errorbar(x = x, y = gride_isolet[0][:len(x)][::-1], yerr = gride_isolet[1][:len(x)], color = 'C0')
 sns.lineplot(ax = ax2, x=x, y = gride_isolet[0][:len(x)][::-1], marker = 'o', color = 'C0')
@@ -197,12 +220,12 @@ sns.lineplot(ax = ax2, x=x, y = gride_isolet[0][:len(x)][::-1], marker = 'o', co
 ax2.errorbar(x = x, y = twonn_isolet[0][:len(x)][::-1], yerr = twonn_isolet[1][:len(x)], color = 'C1')
 sns.lineplot(ax = ax2, x=x, y = twonn_isolet[0][:len(x)][::-1], marker = 'o', color = 'C1')
 
-df_danco  = pd.DataFrame(np.array([danco_isolet[:, 1], danco_isolet[:, 0]]).T, columns = ['ID', 'n'])
+df_danco  = pd.DataFrame(np.array([danco_isolet[:, 1], np.log(danco_isolet[:, 0]) ]).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax2, data = df_danco, x = 'n', y = 'ID', marker = 'o',
                     linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C2')
 
 ax2.errorbar(x = x, y = ess_isolet[0][:len(x)][::-1], yerr = ess_isolet[1][:len(x)], color = 'C3')
-sns.lineplot(ax = ax2, x=x, y = ess_isolet[0][:len(x)][::-1], label = 'ESS', marker = 'o', color = 'C3')
+sns.lineplot(ax = ax2, x=x, y = ess_isolet[0][:len(x)][::-1], marker = 'o', color = 'C3')
 #
 # df_ess  = pd.DataFrame(np.array([ess_isolet[:, 1], ess_isolet[:, 0]]).T, columns = ['ID', 'n'])
 # sns.lineplot(ax = ax2, data = df_ess, x = 'n', y = 'ID', marker = 'o',
@@ -211,13 +234,24 @@ sns.lineplot(ax = ax2, x=x, y = ess_isolet[0][:len(x)][::-1], label = 'ESS', mar
 ax2.errorbar(x = x, y = mle_isolet[0][:len(x)][::-1], yerr = mle_isolet[1][:len(x)], color = 'C4')
 sns.lineplot(ax = ax2, x=x, y = mle_isolet[0][:len(x)][::-1], marker = 'o', color = 'C4')
 
-df_geo  = pd.DataFrame(np.array([geo_isolet[:, 1], geo_isolet[:, 0]]).T, columns = ['ID', 'n'])
+df_geo  = pd.DataFrame(np.array([geo_isolet[:, 1], np.log(geo_isolet[:, 0]) ] ).T, columns = ['ID', 'n'])
 sns.lineplot(ax = ax2, data = df_geo, x = 'n', y = 'ID', marker = 'o',
                 linewidth = '1.5', ci = 'sd', err_style = 'bars', color = 'C5')
 
 
 ax2.set_ylabel('')
-ax2.set_xlabel('n° data', fontsize = 14)
+#ax2.set_xlabel('n° data', fontsize = 14)
+ax2.set_xlabel('N', fontsize = 14)
+ax2.set_xticklabels([])
+
+xticks = [1000, 2000, 4000, 8000]
+ax2.set_xticks(np.log(xticks))
+ax2.set_xticklabels(xticks)
+#ax2.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+#ax2.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+#ax2.get_xaxis().set_tick_params(which='minor', size=0)
+#ax2.get_xaxis().set_tick_params(which='minor', width=0)
+
 gs.tight_layout(fig, rect = [0.75, 0.01, 1., 0.99])
 
 
@@ -225,4 +259,4 @@ fig.text(0.23, 0.92, 'a', fontsize = 14, fontweight = 'bold')
 fig.text(0.47, 0.92, 'b', fontsize = 14, fontweight = 'bold')
 fig.text(0.74, 0.92, 'c', fontsize = 14, fontweight = 'bold')
 
-plt.savefig('./plots/real_datasets.pdf')
+plt.savefig('./plots/real_datasets1.pdf')
