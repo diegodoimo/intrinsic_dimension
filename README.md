@@ -23,7 +23,7 @@ conda install pytorch torchvision cpuonly -c pytorch    #(cifar mnist datasets)
 To reproduce the ESS estimator tests install R in the conda environment with: 
 ```
 conda activate gride
-conda install r-essentials r-base
+conda install r-base=3.6.1 r-essentials=3.6.0 
 ```
 Then open R from terminal typing:
 ```
@@ -32,6 +32,7 @@ R
 and install the package intrinsicDimension:
 ```
 install.packages("intrinsicDimension")
+install.packages("reticulate")
 ```
 To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021b.
 
