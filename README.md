@@ -14,7 +14,7 @@ You can get miniconda from https://docs.conda.io/en/latest/miniconda.html, or in
 conda create -n gride                                     #create empy environment named "gride"
 conda install python numpy scipy scikit-learn seaborn     #install relevant python packages
 pip install dadapy                                        #official version of gride (and much more)
-conda install pytorch torchvision cpuonly -c pytorch      #(cifar mnist datasets)
+conda install pytorch torchvision cpuonly -c pytorch      #cifar mnist datasets
 ```
 
 To reproduce the ESS estimator tests install R in the conda environment with: 
@@ -35,6 +35,16 @@ To reproduce the DANCo estimator tests you must have MATLAB installed. We used M
 
 
 ## Usage
+
+**To reproduce the results and plots shown in the paper for the gride and twonn estimator type:**
+```
+./run_gride
+``
+the results of the computations and the figures will be saved in the folder results_gride_twonn. For a more detailed description of the repo see below.
+
+
+
+
 
 **Dataset generation**
 ```
