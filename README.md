@@ -39,7 +39,7 @@ To reproduce the DANCo estimator tests you must have MATLAB installed. We used M
 **To reproduce the results and plots shown in the paper for the gride and twonn estimator type:**
 ```
 ./run_gride
-``
+```
 the results of the computations and the figures will be saved in the folder results_gride_twonn. For a more detailed description of the repo see below.
 
 
