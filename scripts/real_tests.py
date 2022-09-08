@@ -88,8 +88,8 @@ for algo in ['gride', 'twonn', 'mle']:
                 if nsample > 2*args.k2:
                     for rep in range(int(4*fraction)):
                         X = X_full[np.random.choice(nsample, size = nsubsample, replace = False)]
-                        id = geomle(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap , ver = 'GeoMLE')
-                        with open(f'{args.results_folder}/geomle_{args.data_name}_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
+                        id = geomle_opt(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap , ver = 'GeoMLE')
+                        with open(f'{args.results_folder}/geomle_{args.data_name}_k{args.k1}_{args.k2}.txt', 'a') as f:
                             f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}\n')
 
     if args.algo is not None:

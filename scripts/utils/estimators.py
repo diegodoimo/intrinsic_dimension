@@ -116,9 +116,9 @@ def _compute_id_2NN(mus, fraction, algorithm="base"):
     return intrinsic_dim
 
 def compute_id_2NN(
-    X, N, algorithm="base", fraction=0.9, decimation=1, set_attr=True
+    X, algorithm="base", fraction=0.9, decimation=1, set_attr=True
 ):
-
+    N = X.shape[0]
     nrep = int(np.rint(1.0 / decimation))
     ids = np.zeros(nrep)
     rs = np.zeros(nrep)
