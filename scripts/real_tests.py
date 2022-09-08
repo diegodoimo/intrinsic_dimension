@@ -6,6 +6,7 @@ from dadapy import IdEstimation
 import torchvision.datasets as datasets
 from utils.geomle import geomle_opt
 import sys
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -92,7 +93,7 @@ for algo in ['gride', 'twonn', 'mle']:
                 sys.stdout.flush()
                 if nsubsample > 2*args.k2:
                     nrep = fraction
-                    X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
+                    X_bootstrap = X_full[np.random.choice(nsample, size = nsubsample, replace = False)]
                     ids, rs = geomle_opt(X_bootstrap, k1 = args.k1, k2 = args.k2, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
 
                 geomle_ids.append(np.mean(ids))
@@ -101,7 +102,7 @@ for algo in ['gride', 'twonn', 'mle']:
 
             path = f'{args.results_folder}/geomle'
             if not os.path.isdir(f'{path}'):
-                os.mkdir(f'{path}')
+                os.makedirs(f'{path}')
             np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
     if args.algo is not None:
