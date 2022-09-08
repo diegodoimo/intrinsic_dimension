@@ -90,10 +90,20 @@ for algo in ['gride', 'twonn', 'mle']:
                 nsubsample = int(nsample//fraction)
                 print(fraction)
                 sys.stdout.flush()
-                if nsubsample > 2*args.k2:
-                    nrep = fraction
+
+                if nsubsample > 4*args.k2:
+                    nrep = 3*fraction
                     X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
                     ids, rs = geomle_opt(X_bootstrap, k1 = args.k1, k2 = args.k2, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
+                    if np.sum(ids == np.inf) > 0 or np.sum(ids == -np.inf)>0:
+
+                        if np.sum(ids == np.inf) > 0:
+                            mask = ids == np.inf
+                        else:
+                            mask = ids == -np.inf
+                            
+                        if np.sum(mask) < len(ids):
+                            ids = ids[mask]
 
                 geomle_ids.append(np.mean(ids))
                 geomle_err.append( np.std(ids)/len(ids) )
