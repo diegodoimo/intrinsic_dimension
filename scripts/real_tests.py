@@ -6,6 +6,7 @@ from dadapy import IdEstimation
 import torchvision.datasets as datasets
 from utils.geomle import geomle_opt
 import sys
+import os
 
 
 parser = argparse.ArgumentParser()
@@ -111,7 +112,7 @@ for algo in ['gride', 'twonn', 'mle']:
 
             path = f'{args.results_folder}/geomle'
             if not os.path.isdir(f'{path}'):
-                os.mkdir(f'{path}')
+                os.makedirs(f'{path}')
             np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
     if args.algo is not None:
