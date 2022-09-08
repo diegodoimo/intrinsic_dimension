@@ -36,6 +36,7 @@ def mle_center(X, X_center, k=5, dist=None):
     Returns:
     dimensionality estimation for the k
     """
+    assert k>3
     if len(X_center.shape) != 2:
         X_center = X_center.values.reshape(1, -1)
     if dist is None:
@@ -286,8 +287,8 @@ def geomle(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
         #print(d_)
         #print('here1')
         X_ = np.array([R_ ** i for i in list(degree)]).T
-        for i in range(len(X_)):
-            print(X_[i, 0])
+        #for i in range(len(X_)):
+            #print(X_[i, 0])
         #print(np.mean(X), len(X))
         lm = Ridge(alpha=alpha)
         lm.fit(X_, d_)

@@ -25,6 +25,7 @@ parser.add_argument('--npy', action = 'store_true')
 
 
 parser.add_argument('--cifar', action = 'store_true')
+parser.add_argument('--cifar_path', default = '../datasets/cifar', type = 'str')
 parser.add_argument('--data_folder', default='../datasets', type=str)
 args = parser.parse_args()
 
@@ -53,7 +54,7 @@ if args.syntetic:
         if args.npy:
             path = f'{folder}/npy'
             if not os.path.isdir(f'{path}'):
-                os.mkdir(f'{path}')
+                os.makedirs(f'{path}')
             np.save(f'{path}/{key}_{int(N/1000)}k_eps{eps}.npy', X)
 
         #tests on ESS
@@ -67,7 +68,7 @@ if args.syntetic:
         #tests on DANCo matlab
         path = f'{folder}/mat'
         if not os.path.isdir(f'{path}'):
-            os.mkdir(f'{path}')
+            os.makedirs(f'{path}')
         savemat(f"{path}/datasets_{int(N/1000)}k_eps{eps}.mat", mdict)
 
 if args.real:
@@ -95,10 +96,12 @@ if args.real:
     if args.cifar:
         path = folder+'/cifar'
         if not os.path.isdir(f'{path}'):
-            os.mkdir(f'{path}')
+            os.makedirs(f'{path}')
 
         "test P scaling (build cifar dataset)"
-        CIFAR_train = datasets.CIFAR10(root='/home/diego/ricerca/datasets/cifar10', train=True, download=False, transform=None)
+        if not os.path.isdir(f'{args.cifar_path}'):
+            os.makedirs(f'{args.cifar_path}')
+        CIFAR_train = datasets.CIFAR10(root=args.cifar_path, train=True, download=True, transform=None)
         sizes = [int(4*(2**0.5)**i) for i in range(12)]
 
         build_dataset(
@@ -111,7 +114,7 @@ if args.real:
         )
 
         "N scaling save the full cifar dataset at 32x32 size"
-        CIFAR_train = datasets.CIFAR10(root='/home/diego/ricerca/datasets/cifar10', train=True, download=False, transform=None)
+        CIFAR_train = datasets.CIFAR10(root=args.cifar_path, train=True, download=True, transform=None)
         full_cifar = CIFAR_train.data.transpose(0, 3, 1, 2).reshape(50000, -1)
         np.save(f'{path}/cifar_training.npy', full_cifar)
 

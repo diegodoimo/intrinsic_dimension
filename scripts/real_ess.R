@@ -17,7 +17,7 @@ np <- import("numpy")
 getwd()
 
 results_path<-"./results/real_datasets/ess_local/"
-data_files = list('isolet.npy', 'mnist_ones.npy')
+data_files = list('isomap.npy', 'isolet.npy', 'mnist_ones.npy')
 for(i in 1:length(data_files)) {
 
     mat <-np$load( paste0("../datasets/real/", data_files[i]) )
@@ -33,7 +33,7 @@ for(i in 1:length(data_files)) {
       for (nrep in (1:fraction)){
         s <-sample(nrow(mat),size=n,replace=FALSE)
         X = mat[s, ]
-        essPointwiseDimEst <- asPointwiseEstimator(essLocalDimEst, neighborhood.size=30, indices=NULL)
+        essPointwiseDimEst <- asPointwiseEstimator(essLocalDimEst, neighborhood.size=10, indices=NULL)
         ess.pw.res <- essPointwiseDimEst(X)
         id_val<-median(ess.pw.res$dim.est)
         print(id_val)
@@ -46,7 +46,7 @@ for(i in 1:length(data_files)) {
         }
       }
 
-    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), ".txt")
+    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), "_k10.txt")
     write.table(ids, filename, append = FALSE, sep = " ", dec = ".",
                row.names = FALSE, col.names = FALSE)
   }

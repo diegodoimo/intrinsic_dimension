@@ -74,7 +74,6 @@ if args.N:
 
             "gride"
             if algo == 'gride':
-
                 #ie = IdEstimation(coordinates=X)
                 start = time.time()
                 ids, stds, rs = return_id_scaling_gride(X, range_max = min(64, int(ndata/10)) )  #without class overheads
