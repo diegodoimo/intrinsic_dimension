@@ -1,5 +1,5 @@
 clear
-addpath('/u/d/ddoimo/intrinsic_dimension/scripts/danco_matlab/idEstimation')
+addpath('/u/d/ddoimo/intrinsic_dimension/scripts/utils/matlab/idEstimation')
 import idEstimation.*
 maxNumCompThreads(8);
 
@@ -9,7 +9,7 @@ maxNumCompThreads(8);
     
 
 
-datasets = load('/u/d/ddoimo/intrinsic_dimension/datasets/matlab_datasets.mat');
+datasets = load('/u/d/ddoimo/intrinsic_dimension/datasets/datasets_16k_eps0.01.mat');
 %whos('-file', '/u/d/ddoimo/intrinsic_dimension/datasets/matlab_datasets.mat')
 
 fn = fieldnames(datasets);
@@ -22,9 +22,8 @@ for k=1:numel(fn)
 
     fraction =[1, 2, 4, 8, 16, 32, 64, 128, 256, 512];
     N = [];
-    times = [];
     ids = [];
-    fmt = "./results/syntetic/DANCo_"+fn{k}+".txt"
+    fmt = "./results/syntetic/DANCo_16k_eps0.01_"+fn{k}+".txt";
     fileID  = fopen(fmt, 'w');
    
     for i = 1:length(fraction)

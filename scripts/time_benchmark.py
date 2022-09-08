@@ -131,13 +131,18 @@ if args.P:
                     size = p,
                     transform = True)
             print(X.shape)
+            sys.stdout.flush()
+
+            ndata = X.shape[0]
+
             "gride"
             if algo == 'gride':
 
                 #ie = IdEstimation(coordinates=X)
                 print(X.shape)
+                sys.stdout.flush()
                 start = time.time()
-                ids, stds, rs = ie.return_id_scaling_gride(X, min(64, int(ndata/10)))
+                ids, stds, rs = return_id_scaling_gride(X, min(64, int(ndata/10)))
                 #ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
                 times[i] = np.array([p, delay, np.mean(ids[:3])])

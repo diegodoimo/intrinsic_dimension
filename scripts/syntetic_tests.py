@@ -110,7 +110,7 @@ if not args.uniform_gride:
                 path = f'{args.results_folder}/geomle'
                 if not os.path.isdir(f'{path}'):
                     os.mkdir(f'{path}')
-                np.save(f'{path}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+                np.save(f'{path}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_k{args.k1}_{args.k2}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
         if args.algo is not None:
             break
