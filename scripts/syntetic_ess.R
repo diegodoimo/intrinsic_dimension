@@ -1,7 +1,7 @@
 library(intrinsicDimension)
 
 library(reticulate)
-library(tidyverse)
+#library(tidyverse)
 library(here)
 np <- import("numpy")
 
@@ -9,7 +9,7 @@ np <- import("numpy")
 
 data_files<-list.files("../datasets/syntetic/csv")
 results_path<-"./results/syntetic_datasets/ess/"
-
+#print(data_files)
 for(i in 1:length(data_files)) {
     mat <-read.csv(paste0("../datasets/syntetic/csv/", data_files[i]), header = FALSE)
 
@@ -25,7 +25,7 @@ for(i in 1:length(data_files)) {
       n <- ndata%/%fraction
       print(fraction)
 
-      for (nrep in (1:4)){
+      for (nrep in (1:min(4, fraction) )){
         s <-sample(nrow(mat),size=n,replace=FALSE)
         X = mat[s,]
         X = as.matrix(sapply(X, as.numeric))
