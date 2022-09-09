@@ -36,7 +36,7 @@ def mle_center(X, X_center, k=5, dist=None):
     Returns:
     dimensionality estimation for the k
     """
-    assert k>3
+    assert k>2
     if len(X_center.shape) != 2:
         X_center = X_center.values.reshape(1, -1)
     if dist is None:
