@@ -91,7 +91,7 @@ for algo in ['gride', 'twonn', 'mle']:
                 nsubsample = int(nsample//fraction)
                 print(fraction)
                 sys.stdout.flush()
-                
+
                 if nsubsample > 4*args.k2:
                     nrep = 3*fraction
                     X_bootstrap = X_full[np.random.choice(nsample, size = nsubsample, replace = False)]
@@ -106,16 +106,21 @@ for algo in ['gride', 'twonn', 'mle']:
                         if np.sum(mask) < len(ids):
                             ids = ids[mask]
 
-                #geomle_ids.append(np.mean(ids))
-                #geomle_err.append( np.std(ids)/len(ids) )
-                #geomle_rs.append( np.mean(rs) )
+
 
                 path = f'{args.results_folder}/geomle'
                 if not os.path.isdir(f'{path}'):
                     os.makedirs(f'{path}')
-                np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}_frac{fraction}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+                np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}_frac{fraction}.npy', np.array([ids, rs]))
+
+                #geomle_ids.append(np.mean(ids))
+                #geomle_err.append( np.std(ids)/len(ids) )
+                #geomle_rs.append( np.mean(rs) )
+
+                # path = f'{args.results_folder}/geomle'
+                # if not os.path.isdir(f'{path}'):
+                #     os.makedirs(f'{path}')
+                # np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}_frac{fraction}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
     if args.algo is not None:
         break
-
-40*96/256
