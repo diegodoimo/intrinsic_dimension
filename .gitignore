@@ -7,4 +7,5 @@ gride/
 *slurm*
 *.asv
 *.swp
+*.Rhistory
 

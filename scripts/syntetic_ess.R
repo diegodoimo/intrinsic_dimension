@@ -30,7 +30,7 @@ for(i in 1:length(data_files)) {
         X = mat[s,]
         X = as.matrix(sapply(X, as.numeric))
 
-        essPointwiseDimEst <- asPointwiseEstimator(essLocalDimEst, neighborhood.size=30, indices=NULL)
+        essPointwiseDimEst <- asPointwiseEstimator(essLocalDimEst, neighborhood.size=10, indices=NULL)
         #print(is.matrix(X))
         ess.pw.res <- essPointwiseDimEst( X  )
         id_val<-median(ess.pw.res$dim.est)
@@ -43,7 +43,7 @@ for(i in 1:length(data_files)) {
         }
       }
 
-    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), "_local.txt")
+    filename<-paste0(results_path, substring(data_files[i], 1, nchar(data_files[i])-4), "_k10local.txt")
     write.table(ids, filename, append = FALSE, sep = " ", dec = ".",
                row.names = FALSE, col.names = FALSE)
   }
