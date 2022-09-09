@@ -17,4 +17,4 @@ module load autoload cineca-ai/2.1.0
 export OMP_NUM_THREADS=16
 #conda activate /m100_work/Sis22_ermut/ddoimo/intrinsic_dimenson/gride
 
-srun  -N1 python3 real_tests.py --algo 'geomle' --k1 5  --k2 15 #--data_folder '/m100_work/Sis22_ermut/ddoimo/intrinsic_dimension/datasets'
+srun  -N1 python3 real_tests.py --algo 'geomle' --k1 5  --k2 30 #--data_folder '/m100_work/Sis22_ermut/ddoimo/intrinsic_dimension/datasets'
