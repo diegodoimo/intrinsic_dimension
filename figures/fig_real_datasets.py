@@ -113,10 +113,9 @@ danco_isolet = estract_data(danco_isolet, remove_val=val)
 
 data_folder = '../scripts/results/real_datasets'
 
-geomle_mnist = np.load(f'{data_folder}/geomle_mnist_k20_55.npy')
-geomle_isomap = np.load(f'{data_folder}/geomle_isomap_k20_55.npy')
-geomle_isolet = np.load(f'{data_folder}/geomle_isolet_k20_55.npy')
-
+geomle_mnist = np.load(f'{data_folder}/geomle_mnist_k5_15.npy')
+geomle_isomap = np.load(f'{data_folder}/geomle_isomap_k5_15.npy')
+geomle_isolet = np.load(f'{data_folder}/geomle_isolet_k5_15.npy')
 
 
 #*******************************************************************************
@@ -214,9 +213,6 @@ ax1.set_ylabel('')
 gs.tight_layout(fig, rect = [0.49, 0.01, 0.73, 0.99])
 
 
-
-
-
 gs = GridSpec(1, 1)
 ax2 = fig.add_subplot(gs[0])
 x = np.log(np.unique(danco_isolet[:, 0]))
@@ -265,6 +261,6 @@ fig.text(0.47, 0.92, 'b', fontsize = 14, fontweight = 'bold')
 fig.text(0.74, 0.92, 'c', fontsize = 14, fontweight = 'bold')
 
 
-np.log(38)
+
 
 plt.savefig('./plots/real_datasets1.pdf')
