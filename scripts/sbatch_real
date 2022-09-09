@@ -4,7 +4,7 @@
 #SBATCH --qos=normal
 ##SBATCH --qos=m100_qos_dbg          	
 #SBATCH --nodes=1
-#SBATCH --time=2:00:00             		#format: HH:MM:SS
+#SBATCH --time=3:30:00             		#format: HH:MM:SS
 #SBATCH --ntasks-per-node=1        		#4 tasks uso una sola cpu (SMT)
 #SBATCH --cpus-per-task=32        		#128cpu/nodo 64x2 socket
 ##SBATCH --gres=gpu:1            			#1 gpus per node out of 4
@@ -17,4 +17,4 @@ module load autoload cineca-ai/2.1.0
 export OMP_NUM_THREADS=16
 #conda activate /m100_work/Sis22_ermut/ddoimo/intrinsic_dimenson/gride
 
-srun  -N1 python3 real_tests.py --algo 'geomle' --k1 20  --k2 55 #--data_folder '/m100_work/Sis22_ermut/ddoimo/intrinsic_dimension/datasets'
+srun  -N1 python3 real_tests.py --algo 'geomle' --k1 5  --k2 15 #--data_folder '/m100_work/Sis22_ermut/ddoimo/intrinsic_dimension/datasets'

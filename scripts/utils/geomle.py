@@ -109,10 +109,10 @@ def geomle_opt(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
 
     ids = []
     rs = []
-    iter = 0
+    iter_ = 0
     repetition = 0
-    while (nb_iter1-iter > 0 and repetition < 3):
-
+    while ((nb_iter1-iter_) > 0 and repetition < 5):
+        print(iter_, repetition)
     #for i in range(nb_iter1):
         dim_all_, R_all_, k_all_, idx_all_ = [], [], [], []
         start = time.time()
@@ -160,24 +160,30 @@ def geomle_opt(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
         ID = lm.intercept_
 
         if ID<0:
-            if repetition == 2:
-                ID = -1
+            if repetition == 4:
+                ID = -np.inf
                 print('algorithm not converged')
                 ids.append(ID)
                 rs.append(np.mean(R_))
+                repetition=0
+                iter_+=1
             else:
                 repetition+=1
 
         elif ID > dim_space:
-            if repetition == 2:
-                ID = np.inft
+            if repetition == 4:
+                ID = np.inf
                 print('algorithm not converged')
                 ids.append(ID)
                 rs.append(np.mean(R_))
+                repetition=0
+                iter_+=1
             else:
                 repetition+=1
+
         else:
-            iter+=1
+            iter_+=1
+            repetition =0
             ids.append(ID)
             rs.append(np.mean(R_))
 
