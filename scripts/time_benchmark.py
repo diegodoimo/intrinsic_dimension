@@ -24,8 +24,8 @@ parser.add_argument('--nrep', default = 1, type = int)
 parser.add_argument('--nbootstrap', default = 20, type = int)
 parser.add_argument('--data_folder', default='../datasets/real', type=str)
 parser.add_argument('--filename', default='', type=str)
-parser.add_argument('--k1', default=5, type=int)
-parser.add_argument('--k2', default=15, type=int)
+parser.add_argument('--k1', default=20, type=int)
+parser.add_argument('--k2', default=55, type=int)
 parser.add_argument('--seed', default=42, type=int)
 
 parser.add_argument('--results_folder', default='./results/real_datasets/time_benchmark', type=str)
@@ -33,6 +33,11 @@ parser.add_argument('--results_folder', default='./results/real_datasets/time_be
 args = parser.parse_args()
 
 #*******************************************************************************
+if args.algo == 'geomle':
+    args.filename+='_k{args.k1}_{args.k2}'
+
+
+
 #benchmak P
 def build_dataset(images, targets=None, category=None, size=None, transform = False):
     if category is not None:
@@ -48,7 +53,7 @@ if not os.path.isdir(f'{args.results_folder}'):
     os.makedirs(f'{args.results_folder}')
 
 
-filename = f'{args.filename}'
+filename = f'_{args.filename}'
 
 CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
 X_full = build_dataset(images =CIFAR_train.data)
@@ -74,7 +79,6 @@ if args.N:
 
             "gride"
             if algo == 'gride':
-
                 #ie = IdEstimation(coordinates=X)
                 start = time.time()
                 ids, stds, rs = return_id_scaling_gride(X, range_max = min(64, int(ndata/10)) )  #without class overheads
@@ -110,7 +114,7 @@ if args.N:
             break
 
 #*******************************************************************************
-filename = f'{args.filename}'
+filename = f'_{args.filename}'
 
 if args.P:
     for algo in ['gride', 'twonn', 'mle', 'geomle']:
@@ -132,12 +136,16 @@ if args.P:
                     size = p,
                     transform = True)
             print(X.shape)
+            
             ndata = X.shape[0]
+            sys.stdout.flush()
+
             "gride"
             if algo == 'gride':
 
                 #ie = IdEstimation(coordinates=X)
                 print(X.shape)
+                sys.stdout.flush()
                 start = time.time()
                 ids, stds, rs = return_id_scaling_gride(X, min(64, int(ndata/10)))
                 #ids, stds, rs = ie.return_id_scaling_gride()

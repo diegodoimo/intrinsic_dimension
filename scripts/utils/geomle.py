@@ -36,6 +36,7 @@ def mle_center(X, X_center, k=5, dist=None):
     Returns:
     dimensionality estimation for the k
     """
+    assert k>3
     if len(X_center.shape) != 2:
         X_center = X_center.values.reshape(1, -1)
     if dist is None:
@@ -108,7 +109,11 @@ def geomle_opt(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
 
     ids = []
     rs = []
-    for i in range(nb_iter1):
+    iter_ = 0
+    repetition = 0
+    while ((nb_iter1-iter_) > 0 and repetition < 5):
+        print(iter_, repetition)
+    #for i in range(nb_iter1):
         dim_all_, R_all_, k_all_, idx_all_ = [], [], [], []
         start = time.time()
         for j in range(nb_iter2):
@@ -143,23 +148,44 @@ def geomle_opt(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
         R_ = np.empty(k2+1-k1)          #average radii at different ks
         d_ = np.empty(k2+1-k1)          #average distances at different ks
         dim_all_ = np.array(dim_all_)
-        for i, k in enumerate(range(k1, k2+1)):
+        for j, k in enumerate(range(k1, k2+1)):
             mask = kall_ == k
-            R_[i] = np.mean(R_all_[mask])
-            d_[i] = np.mean(dim_all_[mask])
+            R_[j] = np.mean(R_all_[mask])
+            d_[j] = np.mean(dim_all_[mask])
 
         #ridge regression
-        X_ = np.array([R_ ** i for i in list(degree)]).T
+        X_ = np.array([R_ ** l for l in list(degree)]).T
         lm = Ridge(alpha=alpha)
         lm.fit(X_, d_)
         ID = lm.intercept_
 
-        if ID<0: ID =0
-        if ID > dim_space:
-            ID = dim_space
+        if ID<0:
+            if repetition == 4:
+                ID = -np.inf
+                print('algorithm not converged')
+                ids.append(ID)
+                rs.append(np.mean(R_))
+                repetition=0
+                iter_+=1
+            else:
+                repetition+=1
 
-        ids.append(ID)
-        rs.append(np.mean(R_))
+        elif ID > dim_space:
+            if repetition == 4:
+                ID = np.inf
+                print('algorithm not converged')
+                ids.append(ID)
+                rs.append(np.mean(R_))
+                repetition=0
+                iter_+=1
+            else:
+                repetition+=1
+
+        else:
+            iter_+=1
+            repetition =0
+            ids.append(ID)
+            rs.append(np.mean(R_))
 
 
     return np.array(ids), np.array(rs)
@@ -286,8 +312,8 @@ def geomle(X, k1=10, k2=40, nb_iter1=10, nb_iter2=20, degree=(1, 2),
         #print(d_)
         #print('here1')
         X_ = np.array([R_ ** i for i in list(degree)]).T
-        for i in range(len(X_)):
-            print(X_[i, 0])
+        #for i in range(len(X_)):
+            #print(X_[i, 0])
         #print(np.mean(X), len(X))
         lm = Ridge(alpha=alpha)
         lm.fit(X_, d_)

@@ -53,7 +53,7 @@ if args.syntetic:
         if args.npy:
             path = f'{folder}/npy'
             if not os.path.isdir(f'{path}'):
-                os.mkdir(f'{path}')
+                os.makedirs(f'{path}')
             np.save(f'{path}/{key}_{int(N/1000)}k_eps{eps}.npy', X)
 
         #tests on ESS
@@ -67,7 +67,7 @@ if args.syntetic:
         #tests on DANCo matlab
         path = f'{folder}/mat'
         if not os.path.isdir(f'{path}'):
-            os.mkdir(f'{path}')
+            os.makedirs(f'{path}')
         savemat(f"{path}/datasets_{int(N/1000)}k_eps{eps}.mat", mdict)
 
 if args.real:
@@ -95,7 +95,7 @@ if args.real:
     if args.cifar:
         path = folder+'/cifar'
         if not os.path.isdir(f'{path}'):
-            os.mkdir(f'{path}')
+            os.makedirs(f'{path}')
 
         "test P scaling (build cifar dataset)"
         CIFAR_train = datasets.CIFAR10(root=args.cifar_path, train=True, download=True, transform=None)

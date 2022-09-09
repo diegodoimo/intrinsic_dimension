@@ -4,7 +4,10 @@ import argparse
 from utils.estimators import return_id_scaling_gride, return_id_scaling_mle
 from dadapy import IdEstimation
 import torchvision.datasets as datasets
-from utils.geomle import geomle
+from utils.geomle import geomle_opt
+import sys
+import os
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_name', default = 'mnist', type = str)
@@ -13,14 +16,15 @@ parser.add_argument('--nrep', default = 10, type = int)
 parser.add_argument('--nbootstrap', default = 20, type = int)
 parser.add_argument('--data_folder', default='../datasets/real', type=str)
 parser.add_argument('--filename', default='', type=str)
-parser.add_argument('--k1', default=5, type=int)
-parser.add_argument('--k2', default=15, type=int)
+parser.add_argument('--k1', default=20, type=int)
+parser.add_argument('--k2', default=55, type=int)
 parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/real_datasets', type=str)
-args = parser.parse_args([])
+args = parser.parse_args()
 
 rng = np.random.default_rng(2022)
 rng.random(args.seed)
+
 
 print('loading data...')
 def load_isomap(save = False):
@@ -82,15 +86,42 @@ for algo in ['gride', 'twonn', 'mle']:
         elif algo == 'geomle':
             print(f'geomle ndata = {nsample}')
             #lets do explicit decimation here
+            geomle_ids, geomle_err, geomle_rs  = [], [], []
             for fraction in [1, 2, 4, 8, 16, 32]:
                 nsubsample = int(nsample//fraction)
-                print(nsubsample)
-                if nsample > 2*args.k2:
-                    for rep in range(int(4*fraction)):
-                        X = X_full[np.random.choice(nsample, size = nsubsample, replace = False)]
-                        id = geomle(X, k1 =args.k1, k2 = args.k2, nb_iter1 = args.nrep, nb_iter2 = args.nbootstrap , ver = 'GeoMLE')
-                        with open(f'{args.results_folder}/geomle_{args.data_name}_k{args.k1}_{args.k2}_nrep{args.nrep}_nboots{args.nbootstrap}.txt', 'a') as f:
-                            f.write(f'{X.shape[0]}  {np.mean(id): .3f} {np.std(id): .1f}\n')
+                print(fraction)
+                sys.stdout.flush()
+
+                if nsubsample > 4*args.k2:
+                    nrep = 3*fraction
+                    X_bootstrap = X_full[np.random.choice(nsample, size = nsubsample, replace = False)]
+                    ids, rs = geomle_opt(X_bootstrap, k1 = args.k1, k2 = args.k2, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
+                    if np.sum(ids == np.inf) > 0 or np.sum(ids == -np.inf)>0:
+
+                        if np.sum(ids == np.inf) > 0:
+                            mask = ids != np.inf
+                        else:
+                            mask = ids != -np.inf
+                            
+                        if np.sum(mask) < len(ids):
+                            ids = ids[mask]
+                            rs = rs[mask]
+
+
+
+                path = f'{args.results_folder}/geomle'
+                if not os.path.isdir(f'{path}'):
+                    os.makedirs(f'{path}')
+                np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}_frac{fraction}.npy', np.array([ids, rs]))
+
+                #geomle_ids.append(np.mean(ids))
+                #geomle_err.append( np.std(ids)/len(ids) )
+                #geomle_rs.append( np.mean(rs) )
+
+                # path = f'{args.results_folder}/geomle'
+                # if not os.path.isdir(f'{path}'):
+                #     os.makedirs(f'{path}')
+                # np.save(f'{path}/geomle_{key}_k{args.k1}_{args.k2}_frac{fraction}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
     if args.algo is not None:
         break

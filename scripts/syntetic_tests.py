@@ -21,8 +21,13 @@ parser.add_argument('--seed', default=42, type=int)
 parser.add_argument('--results_folder', default='./results/syntetic_datasets', type=str)
 parser.add_argument('--uniform_gride', action = 'store_true')
 
-args = parser.parse_args()
+args = parser.parse_args([])
 
+
+args.algo = 'geomle'
+args.k1 = 0
+args.k2 = 10
+args.results_folder = './tests'
 #*******************************************************************************
 rng = np.random.default_rng(2022)
 rng.random(args.seed)
@@ -96,7 +101,7 @@ if not args.uniform_gride:
                     if nsubsample > 2*args.k2:
                         nrep = fraction
                         X_bootstrap = X[np.random.choice(nsample, size = nsubsample, replace = False)]
-                        ids, rs = geomle_opt(X_bootstrap, k1 = 5, k2 = 15, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
+                        ids, rs = geomle_opt(X_bootstrap, k1 = args.k1, k2 = args.k2, nb_iter1 = nrep, nb_iter2 = args.nbootstrap)
 
                     geomle_ids.append(np.mean(ids))
                     geomle_err.append( np.std(ids)/len(ids) )
@@ -105,7 +110,7 @@ if not args.uniform_gride:
                 path = f'{args.results_folder}/geomle'
                 if not os.path.isdir(f'{path}'):
                     os.mkdir(f'{path}')
-                np.save(f'{path}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
+                np.save(f'{path}/geomle_{key}_N{N/1000}k_D{kwargs["D"]}_d{kwargs["d"]}_eps{kwargs["eps"]}_k{args.k1}_{args.k2}.npy', np.array([geomle_ids, geomle_err, geomle_rs]))
 
         if args.algo is not None:
             break

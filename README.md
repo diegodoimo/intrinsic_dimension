@@ -11,19 +11,16 @@ Platforms:
 You can get miniconda from https://docs.conda.io/en/latest/miniconda.html, or install the dependencies shown below manually.
 
 ```
-conda create --name gride python numpy scipy scikit-learn seaborn 
-```
-
-```
-conda activate gride
-pip install dadapy                                      #official version of gride (and much more)
-conda install pytorch torchvision cpuonly -c pytorch    #(cifar mnist datasets)
+conda create -n gride                                     #create empy environment named "gride"
+conda install python numpy scipy scikit-learn seaborn     #install relevant python packages
+pip install dadapy                                        #official version of gride (and much more)
+conda install pytorch torchvision cpuonly -c pytorch      #cifar mnist datasets
 ```
 
 To reproduce the ESS estimator tests install R in the conda environment with: 
 ```
-conda activate gride
-conda install r-base=3.6.1 r-essentials=3.6.0 
+conda activate gride                                      #activate the environment
+conda install r-base=3.6.1 r-essentials=3.6.0             #install R 
 ```
 Then open R from terminal typing:
 ```
@@ -31,13 +28,23 @@ R
 ```
 and install the package intrinsicDimension:
 ```
-install.packages("intrinsicDimension")
-install.packages("reticulate")
+install.packages("intrinsicDimension")                  #ess estimator
+install.packages("reticulate")                          #numpy interface 
 ```
-To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021b.
+To reproduce the DANCo estimator tests you must have MATLAB installed. We used MATLAB version 2021a.
 
 
 ## Usage
+
+**To reproduce the results and plots shown in the paper for the gride and twonn estimator type:**
+```
+./run_gride
+```
+the results of the computations and the figures will be saved in the folder results_gride_twonn. For a more detailed description of the repo see below.
+
+
+
+
 
 **Dataset generation**
 ```
@@ -47,7 +54,7 @@ python generate_datasets --syntetic --csv --eps 0.01  --N 16000   #syntetic data
 python generate_datasets --syntetic --npy --eps 0.01  --N 16000   #syntetic datasets; '.npy' format; (17MB required)
 python generate_datasets --syntetic --mat --eps 0.01  --N 16000   #syntetic datasets; '.mat' format (matlab struct);  (17MB required)
 
-python generate_datasets --real  --cifar                          #create cifar datasets (700 MB); only required for matlab/R calculaitons
+python generate_datasets --real  --cifar                          #create cifar datasets (1.1 GB); only required for matlab/R calculaitons
 python generate_datasets --real  --download                       #download mnist isomap isolet (... MB)
 ```
 

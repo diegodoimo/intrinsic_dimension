@@ -1,5 +1,5 @@
 #!/bin/bash
-for algo in 'gride' 
+for algo in 'geomle'
 do
-sbatch --export=ALL,algo=$algo sbatch_benchmark
+sbatch --export=ALL,algo=$algo,cpus=$cpus sbatch_benchmark
 done
