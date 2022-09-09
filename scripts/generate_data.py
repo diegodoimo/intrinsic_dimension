@@ -10,7 +10,7 @@ import torchvision.transforms as transforms
 from torchvision.transforms import InterpolationMode
 import os
 import argparse
-
+import torch
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', default = 16000, type = int)
@@ -23,9 +23,8 @@ parser.add_argument('--csv', action = 'store_true')
 parser.add_argument('--mat', action = 'store_true')
 parser.add_argument('--npy', action = 'store_true')
 
-
+parser.add_argument('--cifar_path', default='../datasets', type=str)
 parser.add_argument('--cifar', action = 'store_true')
-parser.add_argument('--cifar_path', default = '../datasets/cifar', type = 'str')
 parser.add_argument('--data_folder', default='../datasets', type=str)
 args = parser.parse_args()
 
@@ -99,8 +98,6 @@ if args.real:
             os.makedirs(f'{path}')
 
         "test P scaling (build cifar dataset)"
-        if not os.path.isdir(f'{args.cifar_path}'):
-            os.makedirs(f'{args.cifar_path}')
         CIFAR_train = datasets.CIFAR10(root=args.cifar_path, train=True, download=True, transform=None)
         sizes = [int(4*(2**0.5)**i) for i in range(12)]
 

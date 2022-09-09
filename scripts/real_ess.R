@@ -9,7 +9,7 @@
 
 library(intrinsicDimension)
 library(reticulate)
-library(tidyverse)
+#library(tidyverse)
 library(here)
 np <- import("numpy")
 
@@ -27,7 +27,7 @@ for(i in 1:length(data_files)) {
                   stringsAsFactors=FALSE)
     ndata<-nrow(mat)
 
-    for (fraction in list(1, 2, 4, 8)){
+    for (fraction in list(1, 2, 4, 8, 16, 32)){
       n <- ndata%/%fraction
       print(fraction)
       for (nrep in (1:fraction)){

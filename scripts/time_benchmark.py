@@ -18,7 +18,7 @@ from utils.geomle import geomle, geomle_opt
 parser = argparse.ArgumentParser()
 parser.add_argument('--N', action = 'store_true')
 parser.add_argument('--P', action = 'store_true')
-parser.add_argument('--cifar_folder', default = '/home/diego/Documents/dottorato/ricerca/datasets/cifar10', type = str)
+parser.add_argument('--cifar_folder', default = '../datasets', type = str)
 parser.add_argument('--algo', default = None, type = str)
 parser.add_argument('--nrep', default = 1, type = int)
 parser.add_argument('--nbootstrap', default = 20, type = int)
@@ -126,7 +126,7 @@ if args.P:
         CIFAR_train = datasets.CIFAR10(root=args.cifar_folder, train=True, download=True, transform=None)
         features = [4, 5, 8, 11, 16, 22, 32, 45, 64, 90, 128, 181]
         times = np.zeros((len(features), 3))
-
+	
         for i, p in enumerate(features):
             print(p)
             X = build_dataset(
@@ -136,9 +136,9 @@ if args.P:
                     size = p,
                     transform = True)
             print(X.shape)
-            sys.stdout.flush()
-
+            
             ndata = X.shape[0]
+            sys.stdout.flush()
 
             "gride"
             if algo == 'gride':
@@ -150,6 +150,7 @@ if args.P:
                 ids, stds, rs = return_id_scaling_gride(X, min(64, int(ndata/10)))
                 #ids, stds, rs = ie.return_id_scaling_gride()
                 delay = time.time()-start
+                print(delay)
                 times[i] = np.array([p, delay, np.mean(ids[:3])])
 
             "twoNN"
