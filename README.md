@@ -1,7 +1,5 @@
 # Scaling analysis of intrinsic dimension with GRIDE
 
-Code and models from the paper ["blabla"](some link to paper arxiv)
-
 Platforms:
 
 - Ubuntu 22.04
